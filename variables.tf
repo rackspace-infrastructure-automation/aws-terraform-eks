@@ -30,3 +30,9 @@ variable "worker_roles_count" {
   type        = "string"
   default     = 0
 }
+
+variable "bootstrap_arguments" {
+  description = "Any optional parameters for the EKS Bootstrapping script. This is ignored for all os's except amazon EKS"
+  type        = "string"
+  default     = ""
+}
