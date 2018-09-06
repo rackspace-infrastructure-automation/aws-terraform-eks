@@ -22,3 +22,11 @@ output "name" {
   description = "Assigned name of the EKS Cluster"
   value       = "${aws_eks_cluster.cluster.id}"
 }
+
+output "setup" {
+  description = "Default EKS bootstrapping script for EC2"
+
+  value = <<EOF
+/etc/eks/bootstrap.sh ${var.name} ${var.bootstrap_arguments}
+EOF
+}
