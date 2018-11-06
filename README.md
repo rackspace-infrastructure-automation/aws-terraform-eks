@@ -42,4 +42,5 @@ Full working references are available at [examples](examples)
 | endpoint | Management endpoint of the EKS Cluster |
 | kubeconfig | Contents of the kubeconfig file used to connect to the cluster for management.  Value should be retrieved with CLI or SDK to ensure proper formatting |
 | name | Assigned name of the EKS Cluster |
+| setup | Default EKS bootstrapping script for EC2 |
 
