@@ -32,6 +32,7 @@ Full working references are available at [examples](examples)
 | subnets | List of public and private subnets used for the EKS control plane. | list | - | yes |
 | worker_roles | List of IAM roles assigned to worker nodes. | list | `<list>` | no |
 | worker_roles_count | The number of worker IAM roles provided. | string | `0` | no |
+| bootstrap_arguments | Any optional parameters for the EKS Bootstrapping script. This is ignored for all os's except amazon EKS | string | - | no |
 
 ## Outputs
 
