@@ -12,7 +12,7 @@ locals {
 }
 
 module "vpc" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-vpc_basenetwork//"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-vpc_basenetwork//?ref=master"
 
   vpc_name = "Test1VPC"
 
@@ -20,7 +20,7 @@ module "vpc" {
 }
 
 module "sg" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-security_group//"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-security_group//?ref=master"
 
   resource_name = "Test-SG"
   vpc_id        = "${module.vpc.vpc_id}"
@@ -50,7 +50,7 @@ data "aws_ami" "eks" {
 }
 
 module "ec2_asg" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ec2_asg//"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ec2_asg//?ref=master"
 
   ec2_os                    = "amazoneks"
   subnets                   = ["${module.vpc.private_subnets}"]
@@ -67,12 +67,4 @@ module "ec2_asg" {
       propagate_at_launch = true
     },
   ]
-}
-
-output kubeconfig {
-  value = "${module.eks.kubeconfig}"
-}
-
-output aws_auth_cm {
-  value = "${module.eks.aws_auth_cm}"
 }

@@ -68,11 +68,3 @@ module "ec2_asg" {
     },
   ]
 }
-
-output kubeconfig {
-  value = "${module.eks.kubeconfig}"
-}
-
-output aws_auth_cm {
-  value = "${module.eks.aws_auth_cm}"
-}
