@@ -21,25 +21,24 @@ module "eks_cluster" {
 
 Full working references are available at [examples](examples)
 
-
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|:----:|:-----:|:-----:|
-| kubernetes_version | The desired Kubernetes version for your cluster. If you do not specify a value here, the latest version available in Amazon EKS is used. | string | `` | no |
-| name | The desired name for the EKS cluster. | string | - | yes |
-| security_groups | List of security groups to apply to the EKS Control Plane.  These groups should enable access to the EKS Worker nodes. | list | - | yes |
-| subnets | List of public and private subnets used for the EKS control plane. | list | - | yes |
-| worker_roles | List of IAM roles assigned to worker nodes. | list | `<list>` | no |
-| worker_roles_count | The number of worker IAM roles provided. | string | `0` | no |
-| bootstrap_arguments | Any optional parameters for the EKS Bootstrapping script. This is ignored for all os's except amazon EKS | string | - | no |
+| bootstrap\_arguments | Any optional parameters for the EKS Bootstrapping script. This is ignored for all os's except amazon EKS | string | `""` | no |
+| kubernetes\_version | The desired Kubernetes version for your cluster. If you do not specify a value here, the latest version available in Amazon EKS is used. | string | `""` | no |
+| name | The desired name for the EKS cluster. | string | n/a | yes |
+| security\_groups | List of security groups to apply to the EKS Control Plane.  These groups should enable access to the EKS Worker nodes. | list | n/a | yes |
+| subnets | List of public and private subnets used for the EKS control plane. | list | n/a | yes |
+| worker\_roles | List of IAM roles assigned to worker nodes. | list | `<list>` | no |
+| worker\_roles\_count | The number of worker IAM roles provided. | string | `"0"` | no |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
-| aws_auth_cm | Contents of the aws-auth-cm.yaml used for cluster configuration.  Value should be retrieved with CLI or SDK to ensure proper formatting |
-| certificate_authority_data | Assigned CA data for the EKS Cluster |
+| aws\_auth\_cm | Contents of the aws-auth-cm.yaml used for cluster configuration.  Value should be retrieved with CLI or SDK to ensure proper formatting |
+| certificate\_authority\_data | Assigned CA data for the EKS Cluster |
 | endpoint | Management endpoint of the EKS Cluster |
 | kubeconfig | Contents of the kubeconfig file used to connect to the cluster for management.  Value should be retrieved with CLI or SDK to ensure proper formatting |
 | name | Assigned name of the EKS Cluster |
