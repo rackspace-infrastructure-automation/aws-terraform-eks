@@ -2,7 +2,7 @@
 
 This module creates an EKS cluster, associated cluster IAM role, and applies EKS worker policies to the worker node IAM roles.
 
-The module will output the required configuration files to enable client and worker node setup and configuration.
+In order to get a working cluster: manual steps must be performed **after** the cluster is built.  The module will output the required configuration files to enable client and worker node setup and configuration.
 
 ## Basic Usage
 
