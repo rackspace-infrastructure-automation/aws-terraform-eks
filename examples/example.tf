@@ -45,7 +45,7 @@ data "aws_ami" "eks" {
 
   filter {
     name   = "name"
-    values = ["amazon-eks-node-*"]
+    values = ["amazon-eks-node-${var.kubernetes_version}*"]
   }
 }
 
