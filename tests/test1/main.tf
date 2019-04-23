@@ -17,7 +17,7 @@ resource "random_string" "name_rstring" {
 }
 
 locals {
-  eks_cluster_name = "Test-EKS-Cluster"
+  eks_cluster_name = "Test-EKS"
 }
 
 module "vpc" {
