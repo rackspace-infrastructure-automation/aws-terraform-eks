@@ -7,6 +7,15 @@ provider "template" {
   version = "~> 1.0"
 }
 
+provider "random" {
+  version = "~> 1.0"
+}
+
+resource "random_string" "name_rstring" {
+  length  = 8
+  special = false
+}
+
 locals {
   eks_cluster_name = "Test-EKS-Cluster"
 }
@@ -29,7 +38,7 @@ module "sg" {
 module "eks" {
   source = "../../module"
 
-  name                      = "${local.eks_cluster_name}"
+  name                      = "${random_string.name_rstring.result}-${local.eks_cluster_name}"
   enabled_cluster_log_types = []                                                                 #  All are enabled by default. Test to ensure disabling doesn't break
   subnets                   = "${concat(module.vpc.private_subnets, module.vpc.public_subnets)}" #  Required
   security_groups           = ["${module.sg.eks_control_plane_security_group_id}"]
