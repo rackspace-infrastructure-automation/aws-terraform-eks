@@ -1,5 +1,5 @@
 provider "aws" {
-  version = "~> 1.2"
+  version = "~> 2.7"
   region  = "us-west-2"
 }
 
@@ -29,11 +29,12 @@ module "sg" {
 module "eks" {
   source = "../../module"
 
-  name               = "${local.eks_cluster_name}"
-  subnets            = "${concat(module.vpc.private_subnets, module.vpc.public_subnets)}" #  Required
-  security_groups    = ["${module.sg.eks_control_plane_security_group_id}"]
-  worker_roles       = ["${module.ec2_asg.iam_role}"]
-  worker_roles_count = "1"
+  name                      = "${local.eks_cluster_name}"
+  enabled_cluster_log_types = []                                                                 #  All are enabled by default. Test to ensure disabling doesn't break
+  subnets                   = "${concat(module.vpc.private_subnets, module.vpc.public_subnets)}" #  Required
+  security_groups           = ["${module.sg.eks_control_plane_security_group_id}"]
+  worker_roles              = ["${module.ec2_asg.iam_role}"]
+  worker_roles_count        = "1"
 
   # kubernetes_version = ""
 }

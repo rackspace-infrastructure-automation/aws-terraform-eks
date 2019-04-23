@@ -69,9 +69,10 @@ resource "aws_iam_role_policy_attachment" "attach_worker_policy" {
 }
 
 resource "aws_eks_cluster" "cluster" {
-  name     = "${var.name}"
-  role_arn = "${aws_iam_role.role.arn}"
-  version  = "${var.kubernetes_version}"
+  name                      = "${var.name}"
+  enabled_cluster_log_types = "${var.enabled_cluster_log_types}"
+  role_arn                  = "${aws_iam_role.role.arn}"
+  version                   = "${var.kubernetes_version}"
 
   vpc_config {
     subnet_ids         = ["${var.subnets}"]
