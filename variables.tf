@@ -36,3 +36,16 @@ variable "bootstrap_arguments" {
   type        = "string"
   default     = ""
 }
+
+variable "enabled_cluster_log_types" {
+  description = "A list of the desired control plane logging to enable. All logs are enabled by default."
+  type        = "list"
+
+  default = [
+    "api",
+    "audit",
+    "authenticator",
+    "controllerManager",
+    "scheduler",
+  ]
+}

@@ -4,6 +4,8 @@ This module creates an EKS cluster, associated cluster IAM role, and applies EKS
 
 In order to get a working cluster: manual steps must be performed **after** the cluster is built.  The module will output the required configuration files to enable client and worker node setup and configuration.
 
+**NOTE:** The minimum required version of the Terraform AWS Provider for this module is `2.6.0`.
+
 ## Basic Usage
 
 ```
@@ -26,6 +28,7 @@ Full working references are available at [examples](examples)
 | Name | Description | Type | Default | Required |
 |------|-------------|:----:|:-----:|:-----:|
 | bootstrap\_arguments | Any optional parameters for the EKS Bootstrapping script. This is ignored for all os's except amazon EKS | string | `""` | no |
+| enabled\_cluster\_log\_types | A list of the desired control plane logging to enable. All logs are enabled by default. | list | `<list>` | no |
 | kubernetes\_version | The desired Kubernetes version for your cluster. If you do not specify a value here, the latest version available in Amazon EKS is used. | string | `""` | no |
 | name | The desired name for the EKS cluster. | string | n/a | yes |
 | security\_groups | List of security groups to apply to the EKS Control Plane.  These groups should enable access to the EKS Worker nodes. | list | n/a | yes |

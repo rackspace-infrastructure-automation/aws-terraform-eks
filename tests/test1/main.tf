@@ -1,5 +1,5 @@
 provider "aws" {
-  version = "~> 1.2"
+  version = "~> 2.7"
   region  = "us-west-2"
 }
 
@@ -7,8 +7,17 @@ provider "template" {
   version = "~> 1.0"
 }
 
+provider "random" {
+  version = "~> 1.0"
+}
+
+resource "random_string" "name_rstring" {
+  length  = 8
+  special = false
+}
+
 locals {
-  eks_cluster_name = "Test-EKS-Cluster"
+  eks_cluster_name = "Test-EKS"
 }
 
 module "vpc" {
@@ -29,11 +38,12 @@ module "sg" {
 module "eks" {
   source = "../../module"
 
-  name               = "${local.eks_cluster_name}"
-  subnets            = "${concat(module.vpc.private_subnets, module.vpc.public_subnets)}" #  Required
-  security_groups    = ["${module.sg.eks_control_plane_security_group_id}"]
-  worker_roles       = ["${module.ec2_asg.iam_role}"]
-  worker_roles_count = "1"
+  name                      = "${random_string.name_rstring.result}-${local.eks_cluster_name}"
+  enabled_cluster_log_types = []                                                                 #  All are enabled by default. Test to ensure disabling doesn't break
+  subnets                   = "${concat(module.vpc.private_subnets, module.vpc.public_subnets)}" #  Required
+  security_groups           = ["${module.sg.eks_control_plane_security_group_id}"]
+  worker_roles              = ["${module.ec2_asg.iam_role}"]
+  worker_roles_count        = "1"
 
   # kubernetes_version = ""
 }
@@ -46,6 +56,11 @@ data "aws_ami" "eks" {
   filter {
     name   = "name"
     values = ["amazon-eks-node-*"]
+  }
+
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
   }
 }
 

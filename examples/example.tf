@@ -1,5 +1,5 @@
 provider "aws" {
-  version = "~> 1.2"
+  version = "~> 2.7"
   region  = "us-west-2"
 }
 
@@ -27,7 +27,7 @@ module "sg" {
 }
 
 module "eks" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//?ref=v0.0.2"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//?ref=v0.0.3"
 
   name               = "${local.eks_cluster_name}"
   subnets            = "${concat(module.vpc.private_subnets, module.vpc.public_subnets)}" #  Required

@@ -1,9 +1,11 @@
 /**
  * # aws-terraform-eks
  *
- *This module creates an EKS cluster, associated cluster IAM role, and applies EKS worker policies to the worker node IAM roles.
+ * This module creates an EKS cluster, associated cluster IAM role, and applies EKS worker policies to the worker node IAM roles.
  *
  * In order to get a working cluster: manual steps must be performed **after** the cluster is built.  The module will output the required configuration files to enable client and worker node setup and configuration.
+ *
+ * **NOTE:** The minimum required version of the Terraform AWS Provider for this module is `2.6.0`.
  *
  *## Basic Usage
  *
@@ -69,9 +71,10 @@ resource "aws_iam_role_policy_attachment" "attach_worker_policy" {
 }
 
 resource "aws_eks_cluster" "cluster" {
-  name     = "${var.name}"
-  role_arn = "${aws_iam_role.role.arn}"
-  version  = "${var.kubernetes_version}"
+  name                      = "${var.name}"
+  enabled_cluster_log_types = "${var.enabled_cluster_log_types}"
+  role_arn                  = "${aws_iam_role.role.arn}"
+  version                   = "${var.kubernetes_version}"
 
   vpc_config {
     subnet_ids         = ["${var.subnets}"]
