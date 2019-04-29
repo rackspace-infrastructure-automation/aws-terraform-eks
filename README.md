@@ -4,6 +4,8 @@ This module creates an EKS cluster, associated cluster IAM role, and applies EKS
 
 In order to get a working cluster: manual steps must be performed **after** the cluster is built.  The module will output the required configuration files to enable client and worker node setup and configuration.
 
+**NOTE:** The minimum required version of the Terraform AWS Provider for this module is `2.6.0`.
+
 ## Basic Usage
 
 ```
