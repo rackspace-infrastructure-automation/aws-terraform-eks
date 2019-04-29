@@ -57,6 +57,11 @@ data "aws_ami" "eks" {
     name   = "name"
     values = ["amazon-eks-node-*"]
   }
+
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
+  }
 }
 
 module "ec2_asg" {
