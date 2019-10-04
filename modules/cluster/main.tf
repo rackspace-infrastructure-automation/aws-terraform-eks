@@ -1,5 +1,5 @@
 /**
- * # aws-terraform-eks
+ * # aws-terraform-eks/modules/cluster
  *
  * This module creates an EKS cluster, associated cluster IAM role, and applies EKS worker policies to the worker node IAM roles.
  *
@@ -11,7 +11,7 @@
  *
  *```
  *module "eks_cluster" {
- *  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//?ref=v0.0.1"
+ *  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/cluster/?ref=v0.0.4"
  *
  *  name = "${local.eks_cluster_name}"
  *  subnets = "${concat(module.vpc.private_subnets, module.vpc.public_subnets)}" #  Required
