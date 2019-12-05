@@ -49,3 +49,9 @@ variable "enabled_cluster_log_types" {
     "scheduler",
   ]
 }
+
+variable "wait_for_cluster" {
+  description = "A variable to control whether we pause deployment after creating the EKS cluster to allow time to fully launch."
+  type        = "string"
+  default     = true
+}

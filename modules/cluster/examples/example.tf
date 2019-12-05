@@ -12,7 +12,7 @@ locals {
 }
 
 module "vpc" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-vpc_basenetwork?ref=v0.0.6"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-vpc_basenetwork?ref=v0.0.10"
 
   vpc_name = "Test1VPC"
 
@@ -20,14 +20,14 @@ module "vpc" {
 }
 
 module "sg" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-security_group?ref=v0.0.5"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-security_group?ref=v0.0.6"
 
   resource_name = "Test-SG"
   vpc_id        = "${module.vpc.vpc_id}"
 }
 
 module "eks" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/cluster?ref=v0.0.4"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/cluster?ref=v0.0.5"
 
   name               = "${local.eks_cluster_name}"
   subnets            = "${concat(module.vpc.private_subnets, module.vpc.public_subnets)}" #  Required
@@ -50,7 +50,7 @@ data "aws_ami" "eks" {
 }
 
 module "ec2_asg" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ec2_asg?ref=v0.0.6"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ec2_asg?ref=v0.0.24"
   ec2_os = "amazoneks"
 
   subnets                   = ["${module.vpc.private_subnets}"]
