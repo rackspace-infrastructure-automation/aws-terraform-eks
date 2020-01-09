@@ -23,28 +23,28 @@ locals {
   eks_cluster_name = "Test-EKS"
 }
 
-module "vpc" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-vpc_basenetwork?ref=master"
-
-  vpc_name = "TestVPC-${random_string.r_string.result}"
-
-  custom_tags = "${map("kubernetes.io/cluster/${local.eks_cluster_name}", "shared")}"
+data "aws_vpc" "selected" {
+  default = true
 }
 
-module "sg" {
+data "aws_subnet_ids" "selected" {
+  vpc_id = "${data.aws_vpc.selected.id}"
+}
+
+module "eks_sg" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-security_group?ref=master"
 
-  resource_name = "Test-SG-${random_string.r_string.result}"
-  vpc_id        = "${module.vpc.vpc_id}"
+  resource_name = "Test-EKS-SG-${random_string.r_string.result}"
+  vpc_id        = "${data.aws_vpc.selected.id}"
 }
 
 module "eks" {
   source = "../../module/modules/cluster"
 
   name                      = "${local.eks_cluster_name}-${random_string.r_string.result}"
-  enabled_cluster_log_types = []                                                                 #  All are enabled by default. Test to ensure disabling doesn't break
-  subnets                   = "${concat(module.vpc.private_subnets, module.vpc.public_subnets)}" #  Required
-  security_groups           = ["${module.sg.eks_control_plane_security_group_id}"]
+  enabled_cluster_log_types = []                                                           #  All are enabled by default. Test to ensure disabling doesn't break
+  subnets                   = "${data.aws_subnet_ids.selected.ids}"                        #  Required
+  security_groups           = ["${module.eks_sg.eks_control_plane_security_group_id}"]
   worker_roles              = ["${module.ec2_asg.iam_role}"]
   worker_roles_count        = "1"
 
@@ -71,11 +71,11 @@ module "ec2_asg" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ec2_asg?ref=master"
 
   ec2_os                    = "amazoneks"
-  subnets                   = ["${module.vpc.private_subnets}"]
+  subnets                   = "${data.aws_subnet_ids.selected.ids}"
   image_id                  = "${data.aws_ami.eks.image_id}"
   instance_type             = "t2.medium"
   resource_name             = "Test_eks_worker_nodes_${random_string.r_string.result}"
-  security_group_list       = ["${module.sg.eks_worker_security_group_id}"]
+  security_group_list       = ["${module.eks_sg.eks_worker_security_group_id}"]
   initial_userdata_commands = "${module.eks.setup}"
 
   additional_tags = [
