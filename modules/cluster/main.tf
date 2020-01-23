@@ -82,8 +82,14 @@ resource "aws_eks_cluster" "cluster" {
   }
 }
 
+locals {
+  kubeconfig_template  = "${path.module}/text/kubeconfig.yaml"
+  aws_auth_cm_template = "${path.module}/text/aws-auth-cm.yaml"
+  map_roles_template   = "${path.module}/text/map_roles.txt"
+}
+
 data "template_file" "kubeconfig" {
-  template = "${file("${path.module}/text/kubeconfig.yaml")}"
+  template = "${file(local.kubeconfig_template)}"
 
   vars = {
     cluster_name = "${aws_eks_cluster.cluster.id}"
@@ -103,7 +109,7 @@ data "aws_iam_role" "worker_roles" {
 data "template_file" "aws_auth_cm" {
   count = "${var.worker_roles_count}"
 
-  template = "${file("${path.module}/text/aws-auth-cm.yaml")}"
+  template = "${file(local.aws_auth_cm_template)}"
 
   vars = {
     iam_role = "${element(data.aws_iam_role.worker_roles.*.arn, count.index)}"
@@ -113,7 +119,7 @@ data "template_file" "aws_auth_cm" {
 data "template_file" "map_roles" {
   count = "${var.worker_roles_count}"
 
-  template = "${file("${path.module}/text/map_roles.txt")}"
+  template = "${file(local.map_roles_template)}"
 
   vars = {
     iam_role = "${element(data.aws_iam_role.worker_roles.*.arn, count.index)}"
@@ -157,6 +163,8 @@ data "aws_iam_policy_document" "autoscaler" {
 }
 
 resource "aws_iam_policy" "autoscaler" {
+  count = "${var.cluster_autoscaler_enable ? 1 : 0}"
+
   description = "Permissions for the EKS autoscaler"
   name_prefix = "${var.name}-Cluster-Autoscaler"
   path        = "/"
@@ -320,6 +328,8 @@ data "aws_iam_policy_document" "alb_ingress" {
 }
 
 resource "aws_iam_policy" "alb_ingress" {
+  count = "${var.alb_ingress_controller_enable ? 1 : 0}"
+
   description = "Permissions for ALB Ingress Controller"
   name_prefix = "${var.name}-Alb-Ingress"
   path        = "/"

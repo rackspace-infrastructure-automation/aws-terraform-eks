@@ -1,7 +1,7 @@
 /**
  * # aws-terraform-eks/modules/kubernetes_components
  *
- * This module
+ * This module creates the other required components for EKS to allow additional features like ALB Ingress and Cluster Autoscaler.
  *
  *## Basic Usage
  *
@@ -293,9 +293,9 @@ resource "kubernetes_cluster_role" "alb_ingress_controller" {
   metadata {
     name = "alb-ingress-controller"
 
-    labels {
+    labels = [{
       "app.kubernetes.io/name" = "alb-ingress-controller"
-    }
+    }]
   }
 
   rule {
@@ -319,9 +319,9 @@ resource "kubernetes_cluster_role_binding" "alb_ingress_controller" {
   metadata {
     name = "alb-ingress-controller"
 
-    labels {
+    labels = [{
       "app.kubernetes.io/name" = "alb-ingress-controller"
-    }
+    }]
   }
 
   subject {
@@ -346,9 +346,9 @@ resource "kubernetes_service_account" "alb_ingress_controller" {
     name      = "alb-ingress-controller"
     namespace = "kube-system"
 
-    labels {
+    labels = [{
       "app.kubernetes.io/name" = "alb-ingress-controller"
-    }
+    }]
   }
 
   automount_service_account_token = true
@@ -362,23 +362,23 @@ resource "kubernetes_deployment" "alb_ingress_controller" {
     name      = "alb-ingress-controller"
     namespace = "kube-system"
 
-    labels {
+    labels = [{
       "app.kubernetes.io/name" = "alb-ingress-controller"
-    }
+    }]
   }
 
   spec {
     selector {
-      match_labels {
+      match_labels = [{
         "app.kubernetes.io/name" = "alb-ingress-controller"
-      }
+      }]
     }
 
     template {
       metadata {
-        labels {
+        labels = [{
           "app.kubernetes.io/name" = "alb-ingress-controller"
-        }
+        }]
       }
 
       spec {

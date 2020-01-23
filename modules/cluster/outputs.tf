@@ -17,27 +17,27 @@ output "endpoint" {
 
 output "iam_alb_ingress" {
   description = "ARN of the EKS Cluster Node ALB Ingress Controller IAM policy"
-  value       = "${aws_iam_policy.alb_ingress.arn}"
+  value       = "${join(",", aws_iam_policy.alb_ingress.*.arn)}"
 }
 
 output "iam_all_node_policies" {
   description = "ARN of all EKS Cluster Node IAM polices"
 
-  value = [
-    "${aws_iam_policy.alb_ingress.arn}",
-    "${aws_iam_policy.autoscaler.arn}",
-    "${aws_iam_policy.alb_ingress.arn}",
-  ]
+  value = "${concat(
+    aws_iam_policy.alb_ingress.*.arn,
+    aws_iam_policy.autoscaler.*.arn,
+    list(aws_iam_policy.cw_logs.arn),
+  )}"
 }
 
 output "iam_autoscaler" {
   description = "ARN of the EKS Cluster Node Cluster Autoscaler IAM policy"
-  value       = "${aws_iam_policy.autoscaler.arn}"
+  value       = "${join(",", aws_iam_policy.autoscaler.*.arn)}"
 }
 
 output "iam_cw_logs" {
   description = "ARN of the EKS Cluster Node Cloudwatch Logs IAM policy"
-  value       = "${aws_iam_policy.alb_ingress.arn}"
+  value       = "${aws_iam_policy.cw_logs.arn}"
 }
 
 output "kubeconfig" {

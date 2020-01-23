@@ -16,7 +16,9 @@ module "vpc" {
 
   vpc_name = "Test1VPC"
 
-  custom_tags = "${map("kubernetes.io/cluster/${local.eks_cluster_name}", "shared")}"
+  custom_tags = {
+    "kubernetes.io/cluster/${local.eks_cluster_name}" = "shared"
+  }
 }
 
 module "sg" {

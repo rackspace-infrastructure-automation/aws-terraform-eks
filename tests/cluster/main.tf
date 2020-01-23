@@ -44,7 +44,7 @@ data "aws_subnet_ids" "selected" {
 }
 
 module "eks_sg" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-security_group?ref=master"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-security_group?ref=tf_v0.11"
 
   resource_name = "Test-EKS-SG-${random_string.r_string.result}"
   vpc_id        = "${data.aws_vpc.selected.id}"
@@ -77,7 +77,7 @@ data "aws_ami" "eks" {
 }
 
 module "ec2_asg" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ec2_asg?ref=master"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ec2_asg?ref=tf_v0.11"
 
   ec2_os                                 = "amazoneks"
   image_id                               = "${data.aws_ami.eks.image_id}"

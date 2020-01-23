@@ -34,8 +34,11 @@ locals {
 module "vpc" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-vpc_basenetwork?ref=v0.0.10"
 
-  vpc_name    = "Test-EKS-VPC-${random_string.r_string.result}"
-  custom_tags = "${map("kubernetes.io/cluster/${local.cluster_name}", "shared")}"
+  vpc_name = "Test-EKS-VPC-${random_string.r_string.result}"
+
+  custom_tags = {
+    "kubernetes.io/cluster/${local.eks_cluster_name}" = "shared"
+  }
 
   public_subnet_tags = [
     {
@@ -52,7 +55,7 @@ module "sg" {
 }
 
 module "eks" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/kubernetes_components?ref=v0.0.5"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/cluster?ref=v0.0.5"
 
   name                      = "${local.cluster_name}"
   enabled_cluster_log_types = []                                                                 #  All are enabled by default. Test to ensure disabling doesn't break
