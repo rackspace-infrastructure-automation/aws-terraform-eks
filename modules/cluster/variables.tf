@@ -1,3 +1,15 @@
+variable "alb_ingress_controller_enable" {
+  description = "A boolean value that determines if IAM policies related to ALB ingress controller should be created."
+  type        = "string"
+  default     = true
+}
+
+variable "cluster_autoscaler_enable" {
+  description = "A boolean value that determines if IAM policies related to cluster autoscaler should be created."
+  type        = "string"
+  default     = true
+}
+
 variable "name" {
   description = "The desired name for the EKS cluster."
   type        = "string"
@@ -48,4 +60,10 @@ variable "enabled_cluster_log_types" {
     "controllerManager",
     "scheduler",
   ]
+}
+
+variable "wait_for_cluster" {
+  description = "A variable to control whether we pause deployment after creating the EKS cluster to allow time to fully launch."
+  type        = "string"
+  default     = true
 }

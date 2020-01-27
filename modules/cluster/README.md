@@ -10,7 +10,7 @@ In order to get a working cluster: manual steps must be performed **after** the 
 
 ```
 module "eks_cluster" {
- source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/cluster/?ref=v0.0.4"
+ source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/cluster/?ref=v0.0.5"
 
  name = "${local.eks_cluster_name}"
  subnets = "${concat(module.vpc.private_subnets, module.vpc.public_subnets)}" #  Required
@@ -27,12 +27,15 @@ Full working references are available at [examples](examples)
 
 | Name | Description | Type | Default | Required |
 |------|-------------|:----:|:-----:|:-----:|
+| alb\_ingress\_controller\_enable | A boolean value that determines if IAM policies related to ALB ingress controller should be created. | string | `"true"` | no |
 | bootstrap\_arguments | Any optional parameters for the EKS Bootstrapping script. This is ignored for all os's except amazon EKS | string | `""` | no |
+| cluster\_autoscaler\_enable | A boolean value that determines if IAM policies related to cluster autoscaler should be created. | string | `"true"` | no |
 | enabled\_cluster\_log\_types | A list of the desired control plane logging to enable. All logs are enabled by default. | list | `<list>` | no |
 | kubernetes\_version | The desired Kubernetes version for your cluster. If you do not specify a value here, the latest version available in Amazon EKS is used. | string | `""` | no |
 | name | The desired name for the EKS cluster. | string | n/a | yes |
 | security\_groups | List of security groups to apply to the EKS Control Plane.  These groups should enable access to the EKS Worker nodes. | list | n/a | yes |
 | subnets | List of public and private subnets used for the EKS control plane. | list | n/a | yes |
+| wait\_for\_cluster | A variable to control whether we pause deployment after creating the EKS cluster to allow time to fully launch. | string | `"true"` | no |
 | worker\_roles | List of IAM roles assigned to worker nodes. | list | `<list>` | no |
 | worker\_roles\_count | The number of worker IAM roles provided. | string | `"0"` | no |
 
@@ -43,6 +46,11 @@ Full working references are available at [examples](examples)
 | aws\_auth\_cm | Contents of the aws-auth-cm.yaml used for cluster configuration.  Value should be retrieved with CLI or SDK to ensure proper formatting |
 | certificate\_authority\_data | Assigned CA data for the EKS Cluster |
 | endpoint | Management endpoint of the EKS Cluster |
+| iam\_alb\_ingress | ARN of the EKS Cluster Node ALB Ingress Controller IAM policy |
+| iam\_all\_node\_policies | ARN of all EKS Cluster Node IAM polices |
+| iam\_autoscaler | ARN of the EKS Cluster Node Cluster Autoscaler IAM policy |
+| iam\_cw\_logs | ARN of the EKS Cluster Node Cloudwatch Logs IAM policy |
+| kube\_map\_roles | The string value used to configure the cluster with the kubernetes_config_map resource |
 | kubeconfig | Contents of the kubeconfig file used to connect to the cluster for management.  Value should be retrieved with CLI or SDK to ensure proper formatting |
 | name | Assigned name of the EKS Cluster |
 | setup | Default EKS bootstrapping script for EC2 |
