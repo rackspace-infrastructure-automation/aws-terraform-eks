@@ -1,29 +1,35 @@
-/**
+/*
  * # aws-terraform-eks/modules/cluster
  *
  * This module creates an EKS cluster, associated cluster IAM role, and applies EKS worker policies to the worker node IAM roles.
  *
  * In order to get a working cluster: manual steps must be performed **after** the cluster is built.  The module will output the required configuration files to enable client and worker node setup and configuration.
  *
- * **NOTE:** The minimum required version of the Terraform AWS Provider for this module is `2.6.0`.
- *
  * ## Basic Usage
  *
  * ```
  * module "eks_cluster" {
- *   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/cluster/?ref=v0.0.5"
+ *   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/cluster/?ref=v0.12.0"
  *
- *   name = "${local.eks_cluster_name}"
- *   subnets = "${concat(module.vpc.private_subnets, module.vpc.public_subnets)}" #  Required
- *   security_groups = ["${module.sg.eks_control_plane_security_group_id}"]
+ *   name = local.eks_cluster_name
+ *   subnets = concat(module.vpc.private_subnets, module.vpc.public_subnets) #  Required
+ *   security_groups = [module.sg.eks_control_plane_security_group_id]
  *
- *   worker_roles       = ["${module.eks_workers.iam_role}"]
+ *   worker_roles       = [module.eks_workers.iam_role]
  *   worker_roles_count = "1"
  * }
  * ```
  *
  * Full working references are available at [examples](examples)
  */
+
+terraform {
+  required_version = ">= 0.12"
+
+  required_providers {
+    aws = ">= 2.6.0"
+  }
+}
 
 locals {
   cluster_policies = [
@@ -53,32 +59,35 @@ data "aws_iam_policy_document" "assume_service" {
 resource "aws_iam_role" "role" {
   name_prefix        = "${var.name}-ControlPlane-"
   path               = "/"
-  assume_role_policy = "${data.aws_iam_policy_document.assume_service.json}"
+  assume_role_policy = data.aws_iam_policy_document.assume_service.json
 }
 
 resource "aws_iam_role_policy_attachment" "attach_control_plane_policy" {
-  count = "${length(local.cluster_policies)}"
+  count = length(local.cluster_policies)
 
-  role       = "${aws_iam_role.role.name}"
-  policy_arn = "${element(local.cluster_policies, count.index)}"
+  role       = aws_iam_role.role.name
+  policy_arn = element(local.cluster_policies, count.index)
 }
 
 resource "aws_iam_role_policy_attachment" "attach_worker_policy" {
-  count = "${length(local.worker_policies) * var.worker_roles_count}"
+  count = length(local.worker_policies) * var.worker_roles_count
 
-  role       = "${element(var.worker_roles, count.index / length(local.worker_policies))}"
-  policy_arn = "${element(local.worker_policies, count.index)}"
+  role = element(
+    var.worker_roles,
+    count.index / length(local.worker_policies),
+  )
+  policy_arn = element(local.worker_policies, count.index)
 }
 
 resource "aws_eks_cluster" "cluster" {
-  name                      = "${var.name}"
-  enabled_cluster_log_types = "${var.enabled_cluster_log_types}"
-  role_arn                  = "${aws_iam_role.role.arn}"
-  version                   = "${var.kubernetes_version}"
+  name                      = var.name
+  enabled_cluster_log_types = var.enabled_cluster_log_types
+  role_arn                  = aws_iam_role.role.arn
+  version                   = var.kubernetes_version
 
   vpc_config {
-    subnet_ids         = ["${var.subnets}"]
-    security_group_ids = ["${var.security_groups}"]
+    subnet_ids         = var.subnets
+    security_group_ids = var.security_groups
   }
 }
 
@@ -89,45 +98,45 @@ locals {
 }
 
 data "template_file" "kubeconfig" {
-  template = "${file(local.kubeconfig_template)}"
+  template = file(local.kubeconfig_template)
 
   vars = {
-    cluster_name = "${aws_eks_cluster.cluster.id}"
-    endpoint     = "${aws_eks_cluster.cluster.endpoint}"
-    cadata       = "${aws_eks_cluster.cluster.certificate_authority.0.data}"
+    cluster_name = aws_eks_cluster.cluster.id
+    endpoint     = aws_eks_cluster.cluster.endpoint
+    cadata       = aws_eks_cluster.cluster.certificate_authority[0].data
   }
 
-  depends_on = ["null_resource.cluster_launch"]
+  depends_on = [null_resource.cluster_launch]
 }
 
 data "aws_iam_role" "worker_roles" {
-  count = "${var.worker_roles_count}"
+  count = var.worker_roles_count
 
-  name = "${element(var.worker_roles, count.index)}"
+  name = element(var.worker_roles, count.index)
 }
 
 data "template_file" "aws_auth_cm" {
-  count = "${var.worker_roles_count}"
+  count = var.worker_roles_count
 
-  template = "${file(local.aws_auth_cm_template)}"
+  template = file(local.aws_auth_cm_template)
 
   vars = {
-    iam_role = "${element(data.aws_iam_role.worker_roles.*.arn, count.index)}"
+    iam_role = element(data.aws_iam_role.worker_roles.*.arn, count.index)
   }
 }
 
 data "template_file" "map_roles" {
-  count = "${var.worker_roles_count}"
+  count = var.worker_roles_count
 
-  template = "${file(local.map_roles_template)}"
+  template = file(local.map_roles_template)
 
   vars = {
-    iam_role = "${element(data.aws_iam_role.worker_roles.*.arn, count.index)}"
+    iam_role = element(data.aws_iam_role.worker_roles.*.arn, count.index)
   }
 }
 
 resource "null_resource" "cluster_launch" {
-  count = "${var.wait_for_cluster ? 1 : 0}"
+  count = var.wait_for_cluster ? 1 : 0
 
   # Sleep for 60 seconds to (hopefully) ensure the cluster is ready before attempting to create
   # the ConfigMap, etc.
@@ -142,7 +151,7 @@ resource "null_resource" "cluster_launch" {
     command = "sleep 60"
   }
   triggers = {
-    cluster_endpoint = "${aws_eks_cluster.cluster.endpoint}"
+    cluster_endpoint = aws_eks_cluster.cluster.endpoint
   }
 }
 
@@ -163,12 +172,12 @@ data "aws_iam_policy_document" "autoscaler" {
 }
 
 resource "aws_iam_policy" "autoscaler" {
-  count = "${var.cluster_autoscaler_enable ? 1 : 0}"
+  count = var.cluster_autoscaler_enable ? 1 : 0
 
   description = "Permissions for the EKS autoscaler"
   name_prefix = "${var.name}-Cluster-Autoscaler"
   path        = "/"
-  policy      = "${data.aws_iam_policy_document.autoscaler.json}"
+  policy      = data.aws_iam_policy_document.autoscaler.json
 }
 
 data "aws_iam_policy_document" "cw_logs" {
@@ -199,7 +208,7 @@ resource "aws_iam_policy" "cw_logs" {
   description = "Permissions for Cloudwatch logs"
   name_prefix = "${var.name}-Cloudwatch-Logs"
   path        = "/"
-  policy      = "${data.aws_iam_policy_document.cw_logs.json}"
+  policy      = data.aws_iam_policy_document.cw_logs.json
 }
 
 data "aws_iam_policy_document" "alb_ingress" {
@@ -328,10 +337,10 @@ data "aws_iam_policy_document" "alb_ingress" {
 }
 
 resource "aws_iam_policy" "alb_ingress" {
-  count = "${var.alb_ingress_controller_enable ? 1 : 0}"
+  count = var.alb_ingress_controller_enable ? 1 : 0
 
   description = "Permissions for ALB Ingress Controller"
   name_prefix = "${var.name}-Alb-Ingress"
   path        = "/"
-  policy      = "${data.aws_iam_policy_document.alb_ingress.json}"
+  policy      = data.aws_iam_policy_document.alb_ingress.json
 }

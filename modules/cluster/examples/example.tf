@@ -1,10 +1,14 @@
+terraform {
+  required_version = ">= 0.12"
+}
+
 provider "aws" {
   version = "~> 2.7"
   region  = "us-west-2"
 }
 
 provider "template" {
-  version = "~> 1.0"
+  version = "~> 2.0"
 }
 
 locals {
@@ -25,18 +29,17 @@ module "sg" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-security_group?ref=v0.0.6"
 
   resource_name = "Test-SG"
-  vpc_id        = "${module.vpc.vpc_id}"
+  vpc_id        = module.vpc.vpc_id
 }
 
 module "eks" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/cluster?ref=v0.0.5"
 
-  name               = "${local.eks_cluster_name}"
-  subnets            = "${concat(module.vpc.private_subnets, module.vpc.public_subnets)}" #  Required
-  security_groups    = ["${module.sg.eks_control_plane_security_group_id}"]
-  worker_roles       = ["${module.ec2_asg.iam_role}"]
+  name               = local.eks_cluster_name
+  subnets            = concat(module.vpc.private_subnets, module.vpc.public_subnets) #  Required
+  security_groups    = [module.sg.eks_control_plane_security_group_id]
+  worker_roles       = [module.ec2_asg.iam_role]
   worker_roles_count = "1"
-
   # kubernetes_version = ""
 }
 
@@ -55,12 +58,12 @@ module "ec2_asg" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ec2_asg?ref=v0.0.24"
   ec2_os = "amazoneks"
 
-  subnets                   = ["${module.vpc.private_subnets}"]
-  image_id                  = "${data.aws_ami.eks.image_id}"
+  subnets                   = [module.vpc.private_subnets]
+  image_id                  = data.aws_ami.eks.image_id
   instance_type             = "t2.medium"
   resource_name             = "my_eks_worker_nodes"
-  security_group_list       = ["${module.sg.eks_worker_security_group_id}"]
-  initial_userdata_commands = "${module.eks.setup}"
+  security_group_list       = [module.sg.eks_worker_security_group_id]
+  initial_userdata_commands = module.eks.setup
 
   additional_tags = [
     {
@@ -70,3 +73,4 @@ module "ec2_asg" {
     },
   ]
 }
+

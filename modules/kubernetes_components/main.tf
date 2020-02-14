@@ -1,4 +1,4 @@
-/**
+/*
  * # aws-terraform-eks/modules/kubernetes_components
  *
  * This module creates the other required components for EKS to allow additional features like ALB Ingress and Cluster Autoscaler.
@@ -7,10 +7,10 @@
  *
  * ```
  * module "eks_config" {
- *   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/kubernetes_components/?ref=v0.0.5"
+ *   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/kubernetes_components/?ref=v0.12.0"
  *
- *   cluster_name    = "${module.eks_cluster.name}"
- *   kube_map_roles  = "${module.eks_cluster.kube_map_roles}"
+ *   cluster_name    = module.eks_cluster.name
+ *   kube_map_roles  = module.eks_cluster.kube_map_roles
  *
  * }
  * ```
@@ -18,41 +18,49 @@
  * Full working references are available at [examples](examples)
  */
 
+terraform {
+  required_version = ">= 0.12"
+
+  required_providers {
+    kubernetes = ">= 1.1.0, < 1.10.0"
+  }
+}
+
 resource "kubernetes_config_map" "aws_auth" {
   metadata {
     name      = "aws-auth"
     namespace = "kube-system"
   }
 
-  data {
-    mapRoles = "${var.kube_map_roles}"
+  data = {
+    mapRoles = var.kube_map_roles
   }
 }
 
 resource "kubernetes_service_account" "cluster_autoscaler" {
-  count = "${var.cluster_autoscaler_enable ? 1 : 0}"
+  count = var.cluster_autoscaler_enable ? 1 : 0
 
   metadata {
     name      = "cluster-autoscaler"
     namespace = "kube-system"
 
-    labels {
+    labels = {
       k8s-addon = "cluster-autoscaler.addons.k8s.io"
       k8s-app   = "cluster-autoscaler"
     }
   }
 
   automount_service_account_token = true
-  depends_on                      = ["kubernetes_config_map.aws_auth"]
+  depends_on                      = [kubernetes_config_map.aws_auth]
 }
 
 resource "kubernetes_cluster_role" "cluster_autoscaler" {
-  count = "${var.cluster_autoscaler_enable ? 1 : 0}"
+  count = var.cluster_autoscaler_enable ? 1 : 0
 
   metadata {
     name = "cluster-autoscaler"
 
-    labels {
+    labels = {
       k8s-addon = "cluster-autoscaler.addons.k8s.io"
       k8s-app   = "cluster-autoscaler"
     }
@@ -127,13 +135,13 @@ resource "kubernetes_cluster_role" "cluster_autoscaler" {
 }
 
 resource "kubernetes_role" "cluster_autoscaler" {
-  count = "${var.cluster_autoscaler_enable ? 1 : 0}"
+  count = var.cluster_autoscaler_enable ? 1 : 0
 
   metadata {
     name      = "cluster-autoscaler"
     namespace = "kube-system"
 
-    labels {
+    labels = {
       k8s-addon = "cluster-autoscaler.addons.k8s.io"
       k8s-app   = "cluster-autoscaler"
     }
@@ -152,16 +160,16 @@ resource "kubernetes_role" "cluster_autoscaler" {
     resource_names = ["cluster-autoscaler-status", "cluster-autoscaler-priority-expander"]
   }
 
-  depends_on = ["kubernetes_config_map.aws_auth"]
+  depends_on = [kubernetes_config_map.aws_auth]
 }
 
 resource "kubernetes_cluster_role_binding" "cluster_autoscaler" {
-  count = "${var.cluster_autoscaler_enable ? 1 : 0}"
+  count = var.cluster_autoscaler_enable ? 1 : 0
 
   metadata {
     name = "cluster-autoscaler"
 
-    labels {
+    labels = {
       k8s-addon = "cluster-autoscaler.addons.k8s.io"
       k8s-app   = "cluster-autoscaler"
     }
@@ -181,13 +189,13 @@ resource "kubernetes_cluster_role_binding" "cluster_autoscaler" {
 }
 
 resource "kubernetes_role_binding" "cluster_autoscaler" {
-  count = "${var.cluster_autoscaler_enable ? 1 : 0}"
+  count = var.cluster_autoscaler_enable ? 1 : 0
 
   metadata {
     name      = "cluster-autoscaler"
     namespace = "kube-system"
 
-    labels {
+    labels = {
       k8s-addon = "cluster-autoscaler.addons.k8s.io"
       k8s-app   = "cluster-autoscaler"
     }
@@ -205,17 +213,17 @@ resource "kubernetes_role_binding" "cluster_autoscaler" {
     name      = "cluster-autoscaler"
   }
 
-  depends_on = ["kubernetes_config_map.aws_auth"]
+  depends_on = [kubernetes_config_map.aws_auth]
 }
 
 resource "kubernetes_deployment" "cluster_autoscaler" {
-  count = "${var.cluster_autoscaler_enable ? 1 : 0}"
+  count = var.cluster_autoscaler_enable ? 1 : 0
 
   metadata {
     name      = "cluster-autoscaler"
     namespace = "kube-system"
 
-    labels {
+    labels = {
       app = "cluster-autoscaler"
     }
   }
@@ -224,14 +232,14 @@ resource "kubernetes_deployment" "cluster_autoscaler" {
     replicas = 1
 
     selector {
-      match_labels {
+      match_labels = {
         app = "cluster-autoscaler"
       }
     }
 
     template {
       metadata {
-        labels {
+        labels = {
           app = "cluster-autoscaler"
         }
       }
@@ -256,13 +264,13 @@ resource "kubernetes_deployment" "cluster_autoscaler" {
 
           resources {
             limits {
-              cpu    = "${var.cluster_autoscaler_cpu_limits}"
-              memory = "${var.cluster_autoscaler_mem_limits}"
+              cpu    = var.cluster_autoscaler_cpu_limits
+              memory = var.cluster_autoscaler_mem_limits
             }
 
             requests {
-              cpu    = "${var.cluster_autoscaler_cpu_requests}"
-              memory = "${var.cluster_autoscaler_mem_requests}"
+              cpu    = var.cluster_autoscaler_cpu_requests
+              memory = var.cluster_autoscaler_mem_requests
             }
           }
 
@@ -278,24 +286,26 @@ resource "kubernetes_deployment" "cluster_autoscaler" {
     }
   }
 
-  timeouts = {
-    create = "${var.kubernetes_deployment_create_timeout}"
-    update = "${var.kubernetes_deployment_update_timeout}"
-    delete = "${var.kubernetes_deployment_delete_timeout}"
+  timeouts {
+    create = var.kubernetes_deployment_create_timeout
+    update = var.kubernetes_deployment_update_timeout
+    delete = var.kubernetes_deployment_delete_timeout
   }
 
-  depends_on = ["kubernetes_config_map.aws_auth"]
+  depends_on = [kubernetes_config_map.aws_auth]
 }
 
 resource "kubernetes_cluster_role" "alb_ingress_controller" {
-  count = "${var.alb_ingress_controller_enable ? 1 : 0}"
+  count = var.alb_ingress_controller_enable ? 1 : 0
 
   metadata {
     name = "alb-ingress-controller"
 
-    labels = [{
-      "app.kubernetes.io/name" = "alb-ingress-controller"
-    }]
+    labels = [
+      {
+        "app.kubernetes.io/name" = "alb-ingress-controller"
+      },
+    ]
   }
 
   rule {
@@ -310,18 +320,20 @@ resource "kubernetes_cluster_role" "alb_ingress_controller" {
     resources  = ["nodes", "pods", "secrets", "services", "namespaces"]
   }
 
-  depends_on = ["kubernetes_config_map.aws_auth"]
+  depends_on = [kubernetes_config_map.aws_auth]
 }
 
 resource "kubernetes_cluster_role_binding" "alb_ingress_controller" {
-  count = "${var.alb_ingress_controller_enable ? 1 : 0}"
+  count = var.alb_ingress_controller_enable ? 1 : 0
 
   metadata {
     name = "alb-ingress-controller"
 
-    labels = [{
-      "app.kubernetes.io/name" = "alb-ingress-controller"
-    }]
+    labels = [
+      {
+        "app.kubernetes.io/name" = "alb-ingress-controller"
+      },
+    ]
   }
 
   subject {
@@ -336,49 +348,57 @@ resource "kubernetes_cluster_role_binding" "alb_ingress_controller" {
     name      = "alb-ingress-controller"
   }
 
-  depends_on = ["kubernetes_config_map.aws_auth"]
+  depends_on = [kubernetes_config_map.aws_auth]
 }
 
 resource "kubernetes_service_account" "alb_ingress_controller" {
-  count = "${var.alb_ingress_controller_enable ? 1 : 0}"
+  count = var.alb_ingress_controller_enable ? 1 : 0
 
   metadata {
     name      = "alb-ingress-controller"
     namespace = "kube-system"
 
-    labels = [{
-      "app.kubernetes.io/name" = "alb-ingress-controller"
-    }]
+    labels = [
+      {
+        "app.kubernetes.io/name" = "alb-ingress-controller"
+      },
+    ]
   }
 
   automount_service_account_token = true
-  depends_on                      = ["kubernetes_config_map.aws_auth"]
+  depends_on                      = [kubernetes_config_map.aws_auth]
 }
 
 resource "kubernetes_deployment" "alb_ingress_controller" {
-  count = "${var.alb_ingress_controller_enable ? 1 : 0}"
+  count = var.alb_ingress_controller_enable ? 1 : 0
 
   metadata {
     name      = "alb-ingress-controller"
     namespace = "kube-system"
 
-    labels = [{
-      "app.kubernetes.io/name" = "alb-ingress-controller"
-    }]
+    labels = [
+      {
+        "app.kubernetes.io/name" = "alb-ingress-controller"
+      },
+    ]
   }
 
   spec {
     selector {
-      match_labels = [{
-        "app.kubernetes.io/name" = "alb-ingress-controller"
-      }]
+      match_labels = [
+        {
+          "app.kubernetes.io/name" = "alb-ingress-controller"
+        },
+      ]
     }
 
     template {
       metadata {
-        labels = [{
-          "app.kubernetes.io/name" = "alb-ingress-controller"
-        }]
+        labels = [
+          {
+            "app.kubernetes.io/name" = "alb-ingress-controller"
+          },
+        ]
       }
 
       spec {
@@ -394,11 +414,12 @@ resource "kubernetes_deployment" "alb_ingress_controller" {
     }
   }
 
-  timeouts = {
-    create = "${var.kubernetes_deployment_create_timeout}"
-    update = "${var.kubernetes_deployment_update_timeout}"
-    delete = "${var.kubernetes_deployment_delete_timeout}"
+  timeouts {
+    create = var.kubernetes_deployment_create_timeout
+    update = var.kubernetes_deployment_update_timeout
+    delete = var.kubernetes_deployment_delete_timeout
   }
 
-  depends_on = ["kubernetes_config_map.aws_auth"]
+  depends_on = [kubernetes_config_map.aws_auth]
 }
+

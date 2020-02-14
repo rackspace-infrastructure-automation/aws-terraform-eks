@@ -4,19 +4,17 @@ This module creates an EKS cluster, associated cluster IAM role, and applies EKS
 
 In order to get a working cluster: manual steps must be performed **after** the cluster is built.  The module will output the required configuration files to enable client and worker node setup and configuration.
 
-**NOTE:** The minimum required version of the Terraform AWS Provider for this module is `2.6.0`.
-
 ## Basic Usage
 
 ```
 module "eks_cluster" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/cluster/?ref=v0.0.5"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/cluster/?ref=v0.12.0"
 
-  name = "${local.eks_cluster_name}"
-  subnets = "${concat(module.vpc.private_subnets, module.vpc.public_subnets)}" #  Required
-  security_groups = ["${module.sg.eks_control_plane_security_group_id}"]
+  name = local.eks_cluster_name
+  subnets = concat(module.vpc.private_subnets, module.vpc.public_subnets) #  Required
+  security_groups = [module.sg.eks_control_plane_security_group_id]
 
-  worker_roles       = ["${module.eks_workers.iam_role}"]
+  worker_roles       = [module.eks_workers.iam_role]
   worker_roles_count = "1"
 }
 ```
@@ -27,7 +25,7 @@ Full working references are available at [examples](examples)
 
 | Name | Version |
 |------|---------|
-| aws | n/a |
+| aws | >= 2.6.0 |
 | null | n/a |
 | template | n/a |
 
@@ -35,17 +33,17 @@ Full working references are available at [examples](examples)
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:-----:|
-| alb\_ingress\_controller\_enable | A boolean value that determines if IAM policies related to ALB ingress controller should be created. | `string` | `true` | no |
+| alb\_ingress\_controller\_enable | A boolean value that determines if IAM policies related to ALB ingress controller should be created. | `bool` | `true` | no |
 | bootstrap\_arguments | Any optional parameters for the EKS Bootstrapping script. This is ignored for all os's except amazon EKS | `string` | `""` | no |
-| cluster\_autoscaler\_enable | A boolean value that determines if IAM policies related to cluster autoscaler should be created. | `string` | `true` | no |
-| enabled\_cluster\_log\_types | A list of the desired control plane logging to enable. All logs are enabled by default. | `list` | <pre>[<br>  "api",<br>  "audit",<br>  "authenticator",<br>  "controllerManager",<br>  "scheduler"<br>]</pre> | no |
+| cluster\_autoscaler\_enable | A boolean value that determines if IAM policies related to cluster autoscaler should be created. | `bool` | `true` | no |
+| enabled\_cluster\_log\_types | A list of the desired control plane logging to enable. All logs are enabled by default. | `list(string)` | <pre>[<br>  "api",<br>  "audit",<br>  "authenticator",<br>  "controllerManager",<br>  "scheduler"<br>]</pre> | no |
 | kubernetes\_version | The desired Kubernetes version for your cluster. If you do not specify a value here, the latest version available in Amazon EKS is used. | `string` | `""` | no |
 | name | The desired name for the EKS cluster. | `string` | n/a | yes |
-| security\_groups | List of security groups to apply to the EKS Control Plane.  These groups should enable access to the EKS Worker nodes. | `list` | n/a | yes |
-| subnets | List of public and private subnets used for the EKS control plane. | `list` | n/a | yes |
-| wait\_for\_cluster | A variable to control whether we pause deployment after creating the EKS cluster to allow time to fully launch. | `string` | `true` | no |
-| worker\_roles | List of IAM roles assigned to worker nodes. | `list` | `[]` | no |
-| worker\_roles\_count | The number of worker IAM roles provided. | `string` | `0` | no |
+| security\_groups | List of security groups to apply to the EKS Control Plane.  These groups should enable access to the EKS Worker nodes. | `list(string)` | n/a | yes |
+| subnets | List of public and private subnets used for the EKS control plane. | `list(string)` | n/a | yes |
+| wait\_for\_cluster | A variable to control whether we pause deployment after creating the EKS cluster to allow time to fully launch. | `bool` | `true` | no |
+| worker\_roles | List of IAM roles assigned to worker nodes. | `list(string)` | `[]` | no |
+| worker\_roles\_count | The number of worker IAM roles provided. | `number` | `0` | no |
 
 ## Outputs
 
