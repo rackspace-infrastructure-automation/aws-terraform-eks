@@ -54,8 +54,8 @@ module "eks" {
   source = "../../module/modules/cluster"
 
   name                      = "${local.eks_cluster_name}-${random_string.r_string.result}"
-  enabled_cluster_log_types = []                                                           #  All are enabled by default. Test to ensure disabling doesn't break
-  subnets                   = "${data.aws_subnet_ids.selected.ids}"                        #  Required
+  enabled_cluster_log_types = []
+  subnets                   = "${data.aws_subnet_ids.selected.ids}"
   security_groups           = ["${module.eks_sg.eks_control_plane_security_group_id}"]
   worker_roles              = ["${module.ec2_asg.iam_role}"]
   worker_roles_count        = "1"
