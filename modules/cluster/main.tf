@@ -7,20 +7,20 @@
  *
  * **NOTE:** The minimum required version of the Terraform AWS Provider for this module is `2.6.0`.
  *
- *## Basic Usage
+ * ## Basic Usage
  *
- *```
- *module "eks_cluster" {
- *  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/cluster/?ref=v0.0.5"
+ * ```
+ * module "eks_cluster" {
+ *   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/cluster/?ref=v0.0.5"
  *
- *  name = "${local.eks_cluster_name}"
- *  subnets = "${concat(module.vpc.private_subnets, module.vpc.public_subnets)}" #  Required
- *  security_groups = ["${module.sg.eks_control_plane_security_group_id}"]
+ *   name = "${local.eks_cluster_name}"
+ *   subnets = "${concat(module.vpc.private_subnets, module.vpc.public_subnets)}" #  Required
+ *   security_groups = ["${module.sg.eks_control_plane_security_group_id}"]
  *
- *  worker_roles       = ["${module.eks_workers.iam_role}"]
- *  worker_roles_count = "1"
- *}
- *```
+ *   worker_roles       = ["${module.eks_workers.iam_role}"]
+ *   worker_roles_count = "1"
+ * }
+ * ```
  *
  * Full working references are available at [examples](examples)
  */
