@@ -40,14 +40,14 @@ output "iam_cw_logs" {
   value       = aws_iam_policy.cw_logs.arn
 }
 
-output "kubeconfig" {
-  description = "Contents of the kubeconfig file used to connect to the cluster for management.  Value should be retrieved with CLI or SDK to ensure proper formatting"
-  value       = data.template_file.kubeconfig.rendered
-}
-
 output "kube_map_roles" {
   description = "The string value used to configure the cluster with the kubernetes_config_map resource"
   value       = join("", data.template_file.map_roles.*.rendered)
+}
+
+output "kubeconfig" {
+  description = "Contents of the kubeconfig file used to connect to the cluster for management.  Value should be retrieved with CLI or SDK to ensure proper formatting"
+  value       = data.template_file.kubeconfig.rendered
 }
 
 output "name" {
