@@ -48,10 +48,10 @@ data "aws_subnet_ids" "selected" {
 }
 
 module "eks_sg" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-security_group?ref=tf_v0.11"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-security_group?ref=master"
 
-  resource_name = "Test-EKS-SG-${random_string.r_string.result}"
-  vpc_id        = data.aws_vpc.selected.id
+  name   = "Test-EKS-SG-${random_string.r_string.result}"
+  vpc_id = data.aws_vpc.selected.id
 }
 
 module "eks" {
@@ -81,7 +81,7 @@ data "aws_ami" "eks" {
 }
 
 module "ec2_asg" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ec2_asg?ref=tf_v0.11"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ec2_asg?ref=master"
 
   ec2_os                                 = "amazoneks"
   image_id                               = data.aws_ami.eks.image_id
@@ -89,24 +89,16 @@ module "ec2_asg" {
   instance_type                          = "t2.medium"
   instance_role_managed_policy_arns      = module.eks.iam_all_node_policies
   instance_role_managed_policy_arn_count = "3"
-  resource_name                          = "Test_eks_worker_nodes_${random_string.r_string.result}"
+  name                                   = "Test_eks_worker_nodes_${random_string.r_string.result}"
   scaling_min                            = "1"
   scaling_max                            = "2"
-  security_group_list                    = [module.eks_sg.eks_worker_security_group_id]
+  security_groups                        = [module.eks_sg.eks_worker_security_group_id]
   subnets                                = data.aws_subnet_ids.selected.ids
 
-  additional_tags = [
-    {
-      key                 = "kubernetes.io/cluster/${module.eks.name}"
-      value               = "owned"
-      propagate_at_launch = true
-    },
-    {
-      key                 = "k8s.io/cluster-autoscaler/enabled"
-      value               = ""
-      propagate_at_launch = true
-    },
-  ]
+  tags = {
+    "kubernetes.io/cluster/${module.eks.name}" = "owned"
+    "k8s.io/cluster-autoscaler/enabled"        = ""
+  }
 }
 
 module "kubernetes_components" {

@@ -301,11 +301,9 @@ resource "kubernetes_cluster_role" "alb_ingress_controller" {
   metadata {
     name = "alb-ingress-controller"
 
-    labels = [
-      {
-        "app.kubernetes.io/name" = "alb-ingress-controller"
-      },
-    ]
+    labels = {
+      "app.kubernetes.io/name" = "alb-ingress-controller"
+    }
   }
 
   rule {
@@ -329,11 +327,9 @@ resource "kubernetes_cluster_role_binding" "alb_ingress_controller" {
   metadata {
     name = "alb-ingress-controller"
 
-    labels = [
-      {
-        "app.kubernetes.io/name" = "alb-ingress-controller"
-      },
-    ]
+    labels = {
+      "app.kubernetes.io/name" = "alb-ingress-controller"
+    }
   }
 
   subject {
@@ -358,11 +354,9 @@ resource "kubernetes_service_account" "alb_ingress_controller" {
     name      = "alb-ingress-controller"
     namespace = "kube-system"
 
-    labels = [
-      {
-        "app.kubernetes.io/name" = "alb-ingress-controller"
-      },
-    ]
+    labels = {
+      "app.kubernetes.io/name" = "alb-ingress-controller"
+    }
   }
 
   automount_service_account_token = true
@@ -376,29 +370,25 @@ resource "kubernetes_deployment" "alb_ingress_controller" {
     name      = "alb-ingress-controller"
     namespace = "kube-system"
 
-    labels = [
-      {
-        "app.kubernetes.io/name" = "alb-ingress-controller"
-      },
-    ]
+    labels = {
+      "app.kubernetes.io/name" = "alb-ingress-controller"
+    }
+
   }
 
   spec {
     selector {
-      match_labels = [
-        {
-          "app.kubernetes.io/name" = "alb-ingress-controller"
-        },
-      ]
+      match_labels = {
+        "app.kubernetes.io/name" = "alb-ingress-controller"
+      }
+
     }
 
     template {
       metadata {
-        labels = [
-          {
-            "app.kubernetes.io/name" = "alb-ingress-controller"
-          },
-        ]
+        labels = {
+          "app.kubernetes.io/name" = "alb-ingress-controller"
+        }
       }
 
       spec {

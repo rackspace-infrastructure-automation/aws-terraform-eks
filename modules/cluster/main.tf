@@ -74,7 +74,7 @@ resource "aws_iam_role_policy_attachment" "attach_worker_policy" {
 
   role = element(
     var.worker_roles,
-    count.index / length(local.worker_policies),
+    floor(count.index / length(local.worker_policies)),
   )
   policy_arn = element(local.worker_policies, count.index)
 }
