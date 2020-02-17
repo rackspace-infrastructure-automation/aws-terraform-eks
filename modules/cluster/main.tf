@@ -21,6 +21,11 @@
  * ```
  *
  * Full working references are available at [examples](examples)
+ *
+ * ## Terraform 0.12 upgrade
+ *
+ * There should be no changes required to move from previous versions of this module to version 0.12.0 or higher.
+ *
  */
 
 terraform {
@@ -46,64 +51,59 @@ locals {
 
 data "aws_iam_policy_document" "assume_service" {
   statement {
-    effect  = "Allow"
     actions = ["sts:AssumeRole"]
+    effect  = "Allow"
 
     principals {
-      type        = "Service"
       identifiers = ["eks.amazonaws.com"]
+      type        = "Service"
     }
   }
 }
 
 resource "aws_iam_role" "role" {
+  assume_role_policy = data.aws_iam_policy_document.assume_service.json
   name_prefix        = "${var.name}-ControlPlane-"
   path               = "/"
-  assume_role_policy = data.aws_iam_policy_document.assume_service.json
 }
 
 resource "aws_iam_role_policy_attachment" "attach_control_plane_policy" {
   count = length(local.cluster_policies)
 
-  role       = aws_iam_role.role.name
   policy_arn = element(local.cluster_policies, count.index)
+  role       = aws_iam_role.role.name
 }
 
 resource "aws_iam_role_policy_attachment" "attach_worker_policy" {
   count = length(local.worker_policies) * var.worker_roles_count
 
+  policy_arn = element(local.worker_policies, count.index)
+
   role = element(
     var.worker_roles,
     floor(count.index / length(local.worker_policies)),
   )
-  policy_arn = element(local.worker_policies, count.index)
 }
 
 resource "aws_eks_cluster" "cluster" {
-  name                      = var.name
   enabled_cluster_log_types = var.enabled_cluster_log_types
+  name                      = var.name
   role_arn                  = aws_iam_role.role.arn
   version                   = var.kubernetes_version
 
   vpc_config {
-    subnet_ids         = var.subnets
     security_group_ids = var.security_groups
+    subnet_ids         = var.subnets
   }
 }
 
-locals {
-  kubeconfig_template  = "${path.module}/text/kubeconfig.yaml"
-  aws_auth_cm_template = "${path.module}/text/aws-auth-cm.yaml"
-  map_roles_template   = "${path.module}/text/map_roles.txt"
-}
-
 data "template_file" "kubeconfig" {
-  template = file(local.kubeconfig_template)
+  template = file("${path.module}/text/kubeconfig.yaml")
 
   vars = {
+    cadata       = aws_eks_cluster.cluster.certificate_authority[0].data
     cluster_name = aws_eks_cluster.cluster.id
     endpoint     = aws_eks_cluster.cluster.endpoint
-    cadata       = aws_eks_cluster.cluster.certificate_authority[0].data
   }
 
   depends_on = [null_resource.cluster_launch]
@@ -118,7 +118,7 @@ data "aws_iam_role" "worker_roles" {
 data "template_file" "aws_auth_cm" {
   count = var.worker_roles_count
 
-  template = file(local.aws_auth_cm_template)
+  template = file("${path.module}/text/aws-auth-cm.yaml")
 
   vars = {
     iam_role = element(data.aws_iam_role.worker_roles.*.arn, count.index)
@@ -128,7 +128,7 @@ data "template_file" "aws_auth_cm" {
 data "template_file" "map_roles" {
   count = var.worker_roles_count
 
-  template = file(local.map_roles_template)
+  template = file("${path.module}/text/map_roles.txt")
 
   vars = {
     iam_role = element(data.aws_iam_role.worker_roles.*.arn, count.index)

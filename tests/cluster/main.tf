@@ -16,11 +16,12 @@ provider "random" {
 }
 
 provider "kubernetes" {
-  version                = "= 1.9"
-  host                   = module.eks.endpoint
+  version = "= 1.9"
+
   cluster_ca_certificate = base64decode(module.eks.certificate_authority_data)
-  token                  = data.aws_eks_cluster_auth.eks.token
+  host                   = module.eks.endpoint
   load_config_file       = false
+  token                  = data.aws_eks_cluster_auth.eks.token
 }
 
 data "aws_eks_cluster_auth" "eks" {
@@ -104,9 +105,9 @@ module "ec2_asg" {
 module "kubernetes_components" {
   source = "../../module/modules/kubernetes_components"
 
+  alb_ingress_controller_enable = true
+  cluster_autoscaler_enable     = true
   cluster_name                  = module.eks.name
   kube_map_roles                = module.eks.kube_map_roles
-  cluster_autoscaler_enable     = true
-  alb_ingress_controller_enable = true
 }
 

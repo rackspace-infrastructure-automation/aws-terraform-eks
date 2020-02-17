@@ -16,6 +16,11 @@
  * ```
  *
  * Full working references are available at [examples](examples)
+ *
+ * ## Terraform 0.12 upgrade
+ *
+ * There should be no changes required to move from previous versions of this module to version 0.12.0 or higher.
+ *
  */
 
 terraform {
@@ -27,18 +32,20 @@ terraform {
 }
 
 resource "kubernetes_config_map" "aws_auth" {
+  data = {
+    mapRoles = var.kube_map_roles
+  }
+
   metadata {
     name      = "aws-auth"
     namespace = "kube-system"
-  }
-
-  data = {
-    mapRoles = var.kube_map_roles
   }
 }
 
 resource "kubernetes_service_account" "cluster_autoscaler" {
   count = var.cluster_autoscaler_enable ? 1 : 0
+
+  automount_service_account_token = true
 
   metadata {
     name      = "cluster-autoscaler"
@@ -50,8 +57,7 @@ resource "kubernetes_service_account" "cluster_autoscaler" {
     }
   }
 
-  automount_service_account_token = true
-  depends_on                      = [kubernetes_config_map.aws_auth]
+  depends_on = [kubernetes_config_map.aws_auth]
 }
 
 resource "kubernetes_cluster_role" "cluster_autoscaler" {
@@ -175,16 +181,16 @@ resource "kubernetes_cluster_role_binding" "cluster_autoscaler" {
     }
   }
 
-  subject {
-    kind      = "ServiceAccount"
-    name      = "cluster-autoscaler"
-    namespace = "kube-system"
-  }
-
   role_ref {
     api_group = "rbac.authorization.k8s.io"
     kind      = "ClusterRole"
     name      = "cluster-autoscaler"
+  }
+
+  subject {
+    kind      = "ServiceAccount"
+    name      = "cluster-autoscaler"
+    namespace = "kube-system"
   }
 }
 
@@ -201,16 +207,16 @@ resource "kubernetes_role_binding" "cluster_autoscaler" {
     }
   }
 
-  subject {
-    kind      = "ServiceAccount"
-    name      = "cluster-autoscaler"
-    namespace = "kube-system"
-  }
-
   role_ref {
     api_group = "rbac.authorization.k8s.io"
     kind      = "Role"
     name      = "cluster-autoscaler"
+  }
+
+  subject {
+    kind      = "ServiceAccount"
+    name      = "cluster-autoscaler"
+    namespace = "kube-system"
   }
 
   depends_on = [kubernetes_config_map.aws_auth]
@@ -245,22 +251,15 @@ resource "kubernetes_deployment" "cluster_autoscaler" {
       }
 
       spec {
+        automount_service_account_token  = "true"
         service_account_name             = "cluster-autoscaler"
         termination_grace_period_seconds = "60"
-        automount_service_account_token  = "true"
-
-        volume {
-          name = "ssl-certs"
-
-          host_path {
-            path = "/etc/ssl/certs/ca-bundle.crt"
-          }
-        }
 
         container {
-          name    = "cluster-autoscaler"
-          image   = "gcr.io/google-containers/cluster-autoscaler:v1.15.0"
-          command = ["./cluster-autoscaler", "--v=4", "--stderrthreshold=info", "--cloud-provider=aws", "--skip-nodes-with-local-storage=false", "--expander=least-waste", "--node-group-auto-discovery=asg:tag=${var.cluster_autoscaler_tag_key}", "--scale-down-delay-after-add=${var.cluster_autoscaler_scale_down_delay}"]
+          command           = ["./cluster-autoscaler", "--v=4", "--stderrthreshold=info", "--cloud-provider=aws", "--skip-nodes-with-local-storage=false", "--expander=least-waste", "--node-group-auto-discovery=asg:tag=${var.cluster_autoscaler_tag_key}", "--scale-down-delay-after-add=${var.cluster_autoscaler_scale_down_delay}"]
+          image             = "gcr.io/google-containers/cluster-autoscaler:v1.15.0"
+          image_pull_policy = "Always"
+          name              = "cluster-autoscaler"
 
           resources {
             limits {
@@ -275,24 +274,30 @@ resource "kubernetes_deployment" "cluster_autoscaler" {
           }
 
           volume_mount {
+            mount_path = "/etc/ssl/certs/ca-certificates.crt"
             name       = "ssl-certs"
             read_only  = true
-            mount_path = "/etc/ssl/certs/ca-certificates.crt"
           }
+        }
 
-          image_pull_policy = "Always"
+        volume {
+          name = "ssl-certs"
+
+          host_path {
+            path = "/etc/ssl/certs/ca-bundle.crt"
+          }
         }
       }
     }
   }
+
+  depends_on = [kubernetes_config_map.aws_auth]
 
   timeouts {
     create = var.kubernetes_deployment_create_timeout
     update = var.kubernetes_deployment_update_timeout
     delete = var.kubernetes_deployment_delete_timeout
   }
-
-  depends_on = [kubernetes_config_map.aws_auth]
 }
 
 resource "kubernetes_cluster_role" "alb_ingress_controller" {
@@ -307,15 +312,15 @@ resource "kubernetes_cluster_role" "alb_ingress_controller" {
   }
 
   rule {
-    verbs      = ["create", "get", "list", "update", "watch", "patch"]
     api_groups = ["", "extensions"]
     resources  = ["configmaps", "endpoints", "events", "ingresses", "ingresses/status", "services"]
+    verbs      = ["create", "get", "list", "update", "watch", "patch"]
   }
 
   rule {
-    verbs      = ["get", "list", "watch"]
     api_groups = ["", "extensions"]
     resources  = ["nodes", "pods", "secrets", "services", "namespaces"]
+    verbs      = ["get", "list", "watch"]
   }
 
   depends_on = [kubernetes_config_map.aws_auth]
@@ -350,6 +355,8 @@ resource "kubernetes_cluster_role_binding" "alb_ingress_controller" {
 resource "kubernetes_service_account" "alb_ingress_controller" {
   count = var.alb_ingress_controller_enable ? 1 : 0
 
+  automount_service_account_token = true
+
   metadata {
     name      = "alb-ingress-controller"
     namespace = "kube-system"
@@ -359,8 +366,7 @@ resource "kubernetes_service_account" "alb_ingress_controller" {
     }
   }
 
-  automount_service_account_token = true
-  depends_on                      = [kubernetes_config_map.aws_auth]
+  depends_on = [kubernetes_config_map.aws_auth]
 }
 
 resource "kubernetes_deployment" "alb_ingress_controller" {
@@ -404,12 +410,12 @@ resource "kubernetes_deployment" "alb_ingress_controller" {
     }
   }
 
+  depends_on = [kubernetes_config_map.aws_auth]
+
   timeouts {
     create = var.kubernetes_deployment_create_timeout
     update = var.kubernetes_deployment_update_timeout
     delete = var.kubernetes_deployment_delete_timeout
   }
-
-  depends_on = [kubernetes_config_map.aws_auth]
 }
 
