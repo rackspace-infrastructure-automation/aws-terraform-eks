@@ -6,31 +6,35 @@ This module creates the other required components for EKS to allow additional fe
 
 ```
 module "eks_config" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/kubernetes_components/?ref=v0.0.5"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/kubernetes_components/?ref=v0.12.0"
 
-  cluster_name    = "${module.eks_cluster.name}"
-  kube_map_roles  = "${module.eks_cluster.kube_map_roles}"
+  cluster_name    = module.eks_cluster.name
+  kube_map_roles  = module.eks_cluster.kube_map_roles
 
 }
 ```
 
 Full working references are available at [examples](examples)
 
+## Terraform 0.12 upgrade
+
+There should be no changes required to move from previous versions of this module to version 0.12.0 or higher.
+
 ## Providers
 
 | Name | Version |
 |------|---------|
-| kubernetes | n/a |
+| kubernetes | >= 1.1.0, < 1.10.0 |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:-----:|
-| alb\_ingress\_controller\_enable | A variable to control whether or not the ALB Ingress resources are enabled | `string` | `true` | no |
-| alb\_max\_api\_retries | Maximum number of times to retry the aws calls | `string` | `"10"` | no |
+| alb\_ingress\_controller\_enable | A variable to control whether or not the ALB Ingress resources are enabled | `bool` | `true` | no |
+| alb\_max\_api\_retries | Maximum number of times to retry the aws calls | `number` | `10` | no |
 | cluster\_autoscaler\_cpu\_limits | CPU Limits for the CA Pod | `string` | `"100m"` | no |
 | cluster\_autoscaler\_cpu\_requests | CPU Requests for the CA Pod | `string` | `"100m"` | no |
-| cluster\_autoscaler\_enable | A variable to control whether CA is enabled | `string` | `true` | no |
+| cluster\_autoscaler\_enable | A variable to control whether CA is enabled | `bool` | `true` | no |
 | cluster\_autoscaler\_mem\_limits | Mem Limits for the CA Pod | `string` | `"300Mi"` | no |
 | cluster\_autoscaler\_mem\_requests | Mem requests for the CA Pod | `string` | `"300Mi"` | no |
 | cluster\_autoscaler\_scale\_down\_delay | CA Scale down delay | `string` | `"5m"` | no |
