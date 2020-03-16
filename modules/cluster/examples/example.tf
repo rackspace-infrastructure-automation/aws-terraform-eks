@@ -3,7 +3,7 @@ terraform {
 }
 
 provider "aws" {
-  version = "~> 2.7"
+  version = "~> 2.52"
   region  = "us-west-2"
 }
 
@@ -18,11 +18,11 @@ locals {
 module "vpc" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-vpc_basenetwork?ref=v0.12.0"
 
-  name = "Test1VPC"
-
   custom_tags = {
     "kubernetes.io/cluster/${local.eks_cluster_name}" = "shared"
   }
+
+  name = "Test1VPC"
 }
 
 module "sg" {
@@ -39,7 +39,7 @@ module "eks" {
   security_groups    = [module.sg.eks_control_plane_security_group_id]
   subnets            = concat(module.vpc.private_subnets, module.vpc.public_subnets) #  Required
   worker_roles       = [module.ec2_asg.iam_role]
-  worker_roles_count = "1"
+  worker_roles_count = 1
 }
 
 # Lookup the correct AMI based on the region specified
@@ -68,4 +68,3 @@ module "ec2_asg" {
     "kubernetes.io/cluster/${module.eks.name}" = "owned"
   }
 }
-

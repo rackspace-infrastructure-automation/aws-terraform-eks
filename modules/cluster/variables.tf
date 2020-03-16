@@ -29,10 +29,28 @@ variable "enabled_cluster_log_types" {
   ]
 }
 
+variable "environment" {
+  description = "Application environment for which this network is being created. Preferred value are Development, Integration, PreProduction, Production, QA, Staging, or Test"
+  type        = "string"
+  default     = "Development"
+}
+
 variable "kubernetes_version" {
   description = "The desired Kubernetes version for your cluster. If you do not specify a value here, the latest version available in Amazon EKS is used."
   type        = string
   default     = ""
+}
+
+variable "log_group_retention" {
+  description = "Specifies the number of days you want to retain log events in the specified log group. Possible values are: 0 (Never Expire), 1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, and 3653."
+  type        = "string"
+  default     = 0
+}
+
+variable "manage_log_group" {
+  description = "Optionally manage the cluster log group via Terraform. Couple with `log_group_retention` to use a retention other than 'Never Expire'."
+  type        = "string"
+  default     = false
 }
 
 variable "name" {
@@ -67,4 +85,3 @@ variable "worker_roles_count" {
   type        = number
   default     = 0
 }
-
