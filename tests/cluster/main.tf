@@ -76,7 +76,7 @@ module "eks" {
   environment               = "${local.tags["Environment"]}"
   name                      = "${local.eks_cluster_name}-${random_string.r_string.result}"
   security_groups           = ["${module.eks_sg.eks_control_plane_security_group_id}"]
-  subnets                   = "${data.aws_subnet_ids.selected.ids}"                        #  Required
+  subnets                   = "${data.aws_subnet_ids.selected.ids}"                        # Required
   tags                      = "${local.tags}"
   worker_roles              = ["${module.ec2_asg.iam_role}"]
   worker_roles_count        = 1
