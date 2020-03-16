@@ -18,11 +18,11 @@ locals {
 module "vpc" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-vpc_basenetwork?ref=v0.12.0"
 
-  custom_tags = {
+  name = "Test1VPC"
+
+  tags = {
     "kubernetes.io/cluster/${local.eks_cluster_name}" = "shared"
   }
-
-  name = "Test1VPC"
 }
 
 module "sg" {

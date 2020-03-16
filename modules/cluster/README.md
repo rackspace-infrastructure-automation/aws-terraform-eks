@@ -43,11 +43,12 @@ There should be no changes required to move from previous versions of this modul
 | enabled\_cluster\_log\_types | A list of the desired control plane logging to enable. All logs are enabled by default. | `list(string)` | <pre>[<br>  "api",<br>  "audit",<br>  "authenticator",<br>  "controllerManager",<br>  "scheduler"<br>]</pre> | no |
 | environment | Application environment for which this network is being created. Preferred value are Development, Integration, PreProduction, Production, QA, Staging, or Test | `string` | `"Development"` | no |
 | kubernetes\_version | The desired Kubernetes version for your cluster. If you do not specify a value here, the latest version available in Amazon EKS is used. | `string` | `""` | no |
-| log\_group\_retention | Specifies the number of days you want to retain log events in the specified log group. Possible values are: 0 (Never Expire), 1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, and 3653. | `string` | `0` | no |
-| manage\_log\_group | Optionally manage the cluster log group via Terraform. Couple with `log_group_retention` to use a retention other than 'Never Expire'. | `string` | `false` | no |
+| log\_group\_retention | Specifies the number of days you want to retain log events in the specified log group. Possible values are: 0 (Never Expire), 1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, and 3653. | `number` | `0` | no |
+| manage\_log\_group | Optionally manage the cluster log group via Terraform. Couple with `log_group_retention` to use a retention other than 'Never Expire'. | `bool` | `false` | no |
 | name | The desired name for the EKS cluster. | `string` | n/a | yes |
 | security\_groups | List of security groups to apply to the EKS Control Plane.  These groups should enable access to the EKS Worker nodes. | `list(string)` | n/a | yes |
 | subnets | List of public and private subnets used for the EKS control plane. | `list(string)` | n/a | yes |
+| tags | Optional tags to be applied on top of the base tags on all resources | `map(string)` | `{}` | no |
 | wait\_for\_cluster | A variable to control whether we pause deployment after creating the EKS cluster to allow time to fully launch. | `bool` | `true` | no |
 | worker\_roles | List of IAM roles assigned to worker nodes. | `list(string)` | `[]` | no |
 | worker\_roles\_count | The number of worker IAM roles provided. | `number` | `0` | no |
