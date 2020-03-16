@@ -1,10 +1,10 @@
 provider "aws" {
-  version = "~> 2.7"
+  version = "~> 2.52"
   region  = "us-west-2"
 }
 
 provider "template" {
-  version = "~> 1.0"
+  version = "~> 2.0"
 }
 
 locals {
@@ -14,11 +14,11 @@ locals {
 module "vpc" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-vpc_basenetwork?ref=v0.0.10"
 
-  vpc_name = "Test1VPC"
-
   custom_tags = {
     "kubernetes.io/cluster/${local.eks_cluster_name}" = "shared"
   }
+
+  vpc_name = "Test1VPC"
 }
 
 module "sg" {
@@ -32,8 +32,8 @@ module "eks" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/cluster?ref=v0.0.5"
 
   name               = "${local.eks_cluster_name}"
-  subnets            = "${concat(module.vpc.private_subnets, module.vpc.public_subnets)}" #  Required
   security_groups    = ["${module.sg.eks_control_plane_security_group_id}"]
+  subnets            = "${concat(module.vpc.private_subnets, module.vpc.public_subnets)}" #  Required
   worker_roles       = ["${module.ec2_asg.iam_role}"]
   worker_roles_count = "1"
 
@@ -53,14 +53,6 @@ data "aws_ami" "eks" {
 
 module "ec2_asg" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ec2_asg?ref=v0.0.24"
-  ec2_os = "amazoneks"
-
-  subnets                   = ["${module.vpc.private_subnets}"]
-  image_id                  = "${data.aws_ami.eks.image_id}"
-  instance_type             = "t2.medium"
-  resource_name             = "my_eks_worker_nodes"
-  security_group_list       = ["${module.sg.eks_worker_security_group_id}"]
-  initial_userdata_commands = "${module.eks.setup}"
 
   additional_tags = [
     {
@@ -69,4 +61,12 @@ module "ec2_asg" {
       propagate_at_launch = true
     },
   ]
+
+  ec2_os                    = "amazoneks"
+  image_id                  = "${data.aws_ami.eks.image_id}"
+  initial_userdata_commands = "${module.eks.setup}"
+  instance_type             = "t2.medium"
+  resource_name             = "my_eks_worker_nodes"
+  security_group_list       = ["${module.sg.eks_worker_security_group_id}"]
+  subnets                   = ["${module.vpc.private_subnets}"]
 }

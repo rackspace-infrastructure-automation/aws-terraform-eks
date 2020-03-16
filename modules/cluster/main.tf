@@ -7,20 +7,21 @@
  *
  * **NOTE:** The minimum required version of the Terraform AWS Provider for this module is `2.6.0`.
  *
- *## Basic Usage
+ * ## Basic Usage
  *
- *```
- *module "eks_cluster" {
- *  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/cluster/?ref=v0.0.5"
+ * ```
+ * module "eks_cluster" {
+ *   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/cluster/?ref=v0.0.5"
  *
- *  name = "${local.eks_cluster_name}"
- *  subnets = "${concat(module.vpc.private_subnets, module.vpc.public_subnets)}" #  Required
- *  security_groups = ["${module.sg.eks_control_plane_security_group_id}"]
+ *   name            = "${local.eks_cluster_name}"
+ *   subnets         = "${concat(module.vpc.private_subnets, module.vpc.public_subnets)}" #  Required
+ *   security_groups = ["${module.sg.eks_control_plane_security_group_id}"]
+ *   tags            = "${local.tags}"
  *
- *  worker_roles       = ["${module.eks_workers.iam_role}"]
- *  worker_roles_count = "1"
- *}
- *```
+ *   worker_roles       = ["${module.eks_workers.iam_role}"]
+ *   worker_roles_count = "1"
+ * }
+ * ```
  *
  * Full working references are available at [examples](examples)
  */
@@ -36,6 +37,16 @@ locals {
     "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy",
     "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly",
   ]
+
+  tags = {
+    Environment     = "${var.environment}"
+    ServiceProvider = "Rackspace"
+  }
+
+  merged_tags = "${merge(
+    local.tags,
+    var.tags,
+  )}"
 }
 
 data "aws_iam_policy_document" "assume_service" {
@@ -70,6 +81,15 @@ resource "aws_iam_role_policy_attachment" "attach_worker_policy" {
   policy_arn = "${element(local.worker_policies, count.index)}"
 }
 
+resource "aws_cloudwatch_log_group" "eks" {
+  count = "${var.manage_log_group ? 1 : 0}"
+
+  name              = "/aws/eks/${var.name}/cluster"
+  retention_in_days = "${var.log_group_retention}"
+
+  tags = "${local.merged_tags}"
+}
+
 resource "aws_eks_cluster" "cluster" {
   name                      = "${var.name}"
   enabled_cluster_log_types = "${var.enabled_cluster_log_types}"
@@ -80,6 +100,12 @@ resource "aws_eks_cluster" "cluster" {
     subnet_ids         = ["${var.subnets}"]
     security_group_ids = ["${var.security_groups}"]
   }
+
+  tags = "${local.merged_tags}"
+
+  depends_on = [
+    "aws_cloudwatch_log_group.eks",
+  ]
 }
 
 locals {
@@ -104,6 +130,8 @@ data "aws_iam_role" "worker_roles" {
   count = "${var.worker_roles_count}"
 
   name = "${element(var.worker_roles, count.index)}"
+
+  tags = "${local.merged_tags}"
 }
 
 data "template_file" "aws_auth_cm" {

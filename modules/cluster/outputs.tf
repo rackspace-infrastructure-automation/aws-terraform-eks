@@ -40,6 +40,11 @@ output "iam_cw_logs" {
   value       = "${aws_iam_policy.cw_logs.arn}"
 }
 
+output "identity" {
+  description = "Nested attribute containing identity provider information for your cluster. Only available on Kubernetes version 1.13 and 1.14 clusters created or upgraded on or after September 3, 2019. https://www.terraform.io/docs/providers/aws/r/eks_cluster.html#identity"
+  value       = "${aws_eks_cluster.cluster.identity}"
+}
+
 output "kubeconfig" {
   description = "Contents of the kubeconfig file used to connect to the cluster for management.  Value should be retrieved with CLI or SDK to ensure proper formatting"
   value       = "${data.template_file.kubeconfig.rendered}"
