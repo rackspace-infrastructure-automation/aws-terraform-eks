@@ -12,12 +12,12 @@ In order to get a working cluster: manual steps must be performed **after** the 
 module "eks_cluster" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/cluster/?ref=v0.0.5"
 
-  name            = "${local.eks_cluster_name}"
-  security_groups = ["${module.sg.eks_control_plane_security_group_id}"]
-  subnets         = "${concat(module.vpc.private_subnets, module.vpc.public_subnets)}" #  Required
-  tags            = "${local.tags}"
+  name               = "${local.eks_cluster_name}"
+  security_groups    = ["${module.sg.eks_control_plane_security_group_id}"]
+  subnets            = "${concat(module.vpc.private_subnets, module.vpc.public_subnets)}" #  Required
+  tags               = "${local.tags}"
   worker_roles       = ["${module.eks_workers.iam_role}"]
-  worker_roles_count = "1"
+  worker_roles_count = 1
 }
 ```
 

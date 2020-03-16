@@ -35,7 +35,7 @@ module "eks" {
   security_groups    = ["${module.sg.eks_control_plane_security_group_id}"]
   subnets            = "${concat(module.vpc.private_subnets, module.vpc.public_subnets)}" #  Required
   worker_roles       = ["${module.ec2_asg.iam_role}"]
-  worker_roles_count = "1"
+  worker_roles_count = 1
 
   # kubernetes_version = ""
 }
