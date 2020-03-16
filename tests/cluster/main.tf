@@ -72,7 +72,7 @@ module "eks_sg" {
 module "eks" {
   source = "../../module/modules/cluster"
 
-  enabled_cluster_log_types = []                                                           #  All are enabled by default. Test to ensure disabling doesn't break
+  enabled_cluster_log_types = []                                                           # All are enabled by default. Test to ensure disabling doesn't break
   environment               = "${local.tags["Environment"]}"
   name                      = "${local.eks_cluster_name}-${random_string.r_string.result}"
   security_groups           = ["${module.eks_sg.eks_control_plane_security_group_id}"]
