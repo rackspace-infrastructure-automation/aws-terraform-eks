@@ -101,6 +101,7 @@ module "ec2_asg" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ec2_asg?ref=tf_v0.11"
 
   additional_tags = [
+    local.tags,
     {
       key                 = "kubernetes.io/cluster/${module.eks.name}"
       value               = "owned"
