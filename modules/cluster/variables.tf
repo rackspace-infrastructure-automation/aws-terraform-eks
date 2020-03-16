@@ -31,8 +31,8 @@ variable "enabled_cluster_log_types" {
 
 variable "environment" {
   description = "Application environment for which this network is being created. Preferred value are Development, Integration, PreProduction, Production, QA, Staging, or Test"
-  default     = "Development"
   type        = "string"
+  default     = "Development"
 }
 
 variable "kubernetes_version" {
@@ -70,8 +70,8 @@ variable "subnets" {
 
 variable "tags" {
   description = "Additional tags to be added to the Elasticsearch cluster."
-  default     = {}
   type        = "map"
+  default     = {}
 }
 
 variable "wait_for_cluster" {
