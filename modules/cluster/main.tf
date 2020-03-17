@@ -129,8 +129,6 @@ data "aws_iam_role" "worker_roles" {
   count = "${var.worker_roles_count}"
 
   name = "${element(var.worker_roles, count.index)}"
-
-  tags = "${local.merged_tags}"
 }
 
 data "template_file" "aws_auth_cm" {
