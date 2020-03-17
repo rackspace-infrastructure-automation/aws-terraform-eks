@@ -54,14 +54,6 @@ data "aws_ami" "eks" {
 module "ec2_asg" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ec2_asg?ref=v0.0.24"
 
-  additional_tags = [
-    {
-      key                 = "kubernetes.io/cluster/${module.eks.name}"
-      value               = "owned"
-      propagate_at_launch = true
-    },
-  ]
-
   ec2_os                    = "amazoneks"
   image_id                  = "${data.aws_ami.eks.image_id}"
   initial_userdata_commands = "${module.eks.setup}"
@@ -69,4 +61,12 @@ module "ec2_asg" {
   resource_name             = "my_eks_worker_nodes"
   security_group_list       = ["${module.sg.eks_worker_security_group_id}"]
   subnets                   = ["${module.vpc.private_subnets}"]
+
+  additional_tags = [
+    {
+      key                 = "kubernetes.io/cluster/${module.eks.name}"
+      value               = "owned"
+      propagate_at_launch = true
+    },
+  ]
 }
