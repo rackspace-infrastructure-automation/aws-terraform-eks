@@ -7,14 +7,6 @@ provider "aws" {
   region  = "us-west-2"
 }
 
-provider "template" {
-  version = "~> 2.0"
-}
-
-provider "random" {
-  version = "~> 2.0"
-}
-
 provider "kubernetes" {
   version = "= 1.9"
 
@@ -22,6 +14,14 @@ provider "kubernetes" {
   host                   = module.eks.endpoint
   load_config_file       = false
   token                  = data.aws_eks_cluster_auth.eks.token
+}
+
+provider "random" {
+  version = "~> 2.0"
+}
+
+provider "template" {
+  version = "~> 2.0"
 }
 
 data "aws_eks_cluster_auth" "eks" {
@@ -37,7 +37,14 @@ resource "random_string" "r_string" {
 }
 
 locals {
-  eks_cluster_name = "Test-EKS"
+  tags = {
+    Environment     = "Test"
+    Purpose         = "Testing aws-terraform-eks"
+    ServiceProvider = "Rackspace"
+    Terraform       = "true"
+  }
+
+  eks_cluster_name = "${local.tags["Environment"]}-EKS"
 }
 
 data "aws_vpc" "selected" {
@@ -51,7 +58,7 @@ data "aws_subnet_ids" "selected" {
 module "eks_sg" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-security_group?ref=master"
 
-  name   = "Test-EKS-SG-${random_string.r_string.result}"
+  name   = "${local.eks_cluster_name}-SG-${random_string.r_string.result}"
   vpc_id = data.aws_vpc.selected.id
 }
 
@@ -62,6 +69,7 @@ module "eks" {
   enabled_cluster_log_types = []
   subnets                   = data.aws_subnet_ids.selected.ids
   security_groups           = [module.eks_sg.eks_control_plane_security_group_id]
+  tags                      = local.tags
   worker_roles              = [module.ec2_asg.iam_role]
   worker_roles_count        = "1"
 }
@@ -87,19 +95,22 @@ module "ec2_asg" {
   ec2_os                                 = "amazoneks"
   image_id                               = data.aws_ami.eks.image_id
   initial_userdata_commands              = module.eks.setup
-  instance_type                          = "t2.medium"
+  instance_role_managed_policy_arn_count = 3
   instance_role_managed_policy_arns      = module.eks.iam_all_node_policies
-  instance_role_managed_policy_arn_count = "3"
+  instance_type                          = "t2.medium"
   name                                   = "Test_eks_worker_nodes_${random_string.r_string.result}"
-  scaling_min                            = "1"
-  scaling_max                            = "2"
+  scaling_max                            = 2
+  scaling_min                            = 1
   security_groups                        = [module.eks_sg.eks_worker_security_group_id]
   subnets                                = data.aws_subnet_ids.selected.ids
 
-  tags = {
-    "kubernetes.io/cluster/${module.eks.name}" = "owned"
-    "k8s.io/cluster-autoscaler/enabled"        = ""
-  }
+  tags = merge(
+    local.tags,
+    {
+      "kubernetes.io/cluster/${module.eks.name}" = "owned"
+      "k8s.io/cluster-autoscaler/enabled"        = ""
+    },
+  )
 }
 
 module "kubernetes_components" {
@@ -110,4 +121,3 @@ module "kubernetes_components" {
   cluster_name                  = module.eks.name
   kube_map_roles                = module.eks.kube_map_roles
 }
-

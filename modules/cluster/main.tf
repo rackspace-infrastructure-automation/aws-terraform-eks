@@ -11,12 +11,12 @@
  * module "eks_cluster" {
  *   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/cluster/?ref=v0.12.0"
  *
- *   name = local.eks_cluster_name
- *   subnets = concat(module.vpc.private_subnets, module.vpc.public_subnets) #  Required
- *   security_groups = [module.sg.eks_control_plane_security_group_id]
- *
+ *   name               = local.eks_cluster_name
+ *   security_groups    = [module.sg.eks_control_plane_security_group_id]
+ *   subnets            = concat(module.vpc.private_subnets, module.vpc.public_subnets) #  Required
+ *   tags               = "${local.tags}"
  *   worker_roles       = [module.eks_workers.iam_role]
- *   worker_roles_count = "1"
+ *   worker_roles_count = 1
  * }
  * ```
  *
@@ -25,7 +25,6 @@
  * ## Terraform 0.12 upgrade
  *
  * There should be no changes required to move from previous versions of this module to version 0.12.0 or higher.
- *
  */
 
 terraform {
@@ -47,6 +46,16 @@ locals {
     "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy",
     "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly",
   ]
+
+  tags = {
+    Environment     = var.environment
+    ServiceProvider = "Rackspace"
+  }
+
+  merged_tags = merge(
+    local.tags,
+    var.tags,
+  )
 }
 
 data "aws_iam_policy_document" "assume_service" {
@@ -65,6 +74,8 @@ resource "aws_iam_role" "role" {
   assume_role_policy = data.aws_iam_policy_document.assume_service.json
   name_prefix        = "${var.name}-ControlPlane-"
   path               = "/"
+
+  tags = local.merged_tags
 }
 
 resource "aws_iam_role_policy_attachment" "attach_control_plane_policy" {
@@ -85,6 +96,15 @@ resource "aws_iam_role_policy_attachment" "attach_worker_policy" {
   )
 }
 
+resource "aws_cloudwatch_log_group" "eks" {
+  count = var.manage_log_group ? 1 : 0
+
+  name              = "/aws/eks/${var.name}/cluster"
+  retention_in_days = var.log_group_retention
+
+  tags = local.merged_tags
+}
+
 resource "aws_eks_cluster" "cluster" {
   enabled_cluster_log_types = var.enabled_cluster_log_types
   name                      = var.name
@@ -95,6 +115,12 @@ resource "aws_eks_cluster" "cluster" {
     security_group_ids = var.security_groups
     subnet_ids         = var.subnets
   }
+
+  tags = local.merged_tags
+
+  depends_on = [
+    "aws_cloudwatch_log_group.eks",
+  ]
 }
 
 data "template_file" "kubeconfig" {
