@@ -37,7 +37,7 @@ locals {
 }
 
 module "vpc" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-vpc_basenetwork?ref=v0.12.0"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-vpc_basenetwork?ref=v0.12.2"
 
   name = "Test-EKS-VPC-${random_string.r_string.result}"
 
@@ -53,14 +53,14 @@ module "vpc" {
 }
 
 module "sg" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-security_group?ref=v0.12.0"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-security_group?ref=v0.12.2"
 
   name   = "Test-SG-${random_string.r_string.result}"
   vpc_id = module.vpc.vpc_id
 }
 
 module "eks" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/cluster?ref=v0.12.0"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/cluster?ref=v0.12.2"
 
   enabled_cluster_log_types = []
   name                      = local.cluster_name
@@ -86,7 +86,7 @@ data "aws_ami" "eks" {
 }
 
 module "worker1" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ec2_asg?ref=v0.12.1"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ec2_asg?ref=v0.12.3"
 
   ec2_os                                 = "amazoneks"
   enable_scaling_actions                 = false
@@ -108,7 +108,7 @@ module "worker1" {
 }
 
 module "worker2" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ec2_asg?ref=v0.12.1"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ec2_asg?ref=v0.12.3"
 
   ec2_os                                 = "amazoneks"
   enable_scaling_actions                 = false
@@ -135,7 +135,7 @@ module "worker2" {
 }
 
 module "kubernetes_components" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/kubernetes_components?ref=v0.12.0"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/kubernetes_components?ref=v0.12.2"
 
   alb_ingress_controller_enable = true
   cluster_autoscaler_enable     = true

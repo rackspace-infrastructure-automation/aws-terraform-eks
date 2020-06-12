@@ -61,6 +61,12 @@ output "name" {
 }
 
 output "setup" {
-  description = "Default EKS bootstrapping script for EC2"
+  description = "Default EKS bootstrapping script for Linux EC2 instances"
   value       = "/etc/eks/bootstrap.sh ${var.name} ${var.bootstrap_arguments}\n"
+}
+
+
+output "setup_windows" {
+  description = "Default EKS bootstrapping script for Windows EC2 instances"
+  value       = "& $env:ProgramFiles\\Amazon\\EKS\\Start-EKSBootstrap.ps1 -EKSClusterName ${var.name} ${var.bootstrap_arguments_windows}\n"
 }

@@ -9,7 +9,7 @@
  *
  * ```
  * module "eks_cluster" {
- *   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/cluster/?ref=v0.12.0"
+ *   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/cluster/?ref=v0.12.2"
  *
  *   name               = local.eks_cluster_name
  *   security_groups    = [module.sg.eks_control_plane_security_group_id]
@@ -118,9 +118,7 @@ resource "aws_eks_cluster" "cluster" {
 
   tags = local.merged_tags
 
-  depends_on = [
-    "aws_cloudwatch_log_group.eks",
-  ]
+  depends_on = [aws_cloudwatch_log_group.eks]
 }
 
 data "template_file" "kubeconfig" {

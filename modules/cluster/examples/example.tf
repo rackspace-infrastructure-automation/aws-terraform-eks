@@ -16,7 +16,7 @@ locals {
 }
 
 module "vpc" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-vpc_basenetwork?ref=v0.12.0"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-vpc_basenetwork?ref=v0.12.2"
 
   name = "Test1VPC"
 
@@ -26,14 +26,14 @@ module "vpc" {
 }
 
 module "sg" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-security_group?ref=v0.12.0"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-security_group?ref=v0.12.2"
 
   name   = "Test-SG"
   vpc_id = module.vpc.vpc_id
 }
 
 module "eks" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/cluster?ref=v0.12.0"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/cluster?ref=v0.12.2"
 
   name               = local.eks_cluster_name
   security_groups    = [module.sg.eks_control_plane_security_group_id]
@@ -54,7 +54,7 @@ data "aws_ami" "eks" {
 }
 
 module "ec2_asg" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ec2_asg?ref=v0.12.1"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ec2_asg?ref=v0.12.3"
 
   ec2_os                    = "amazoneks"
   image_id                  = data.aws_ami.eks.image_id

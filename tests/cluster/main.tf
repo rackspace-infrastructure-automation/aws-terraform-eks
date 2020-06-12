@@ -70,10 +70,9 @@ module "eks" {
   subnets                   = data.aws_subnet_ids.selected.ids
   security_groups           = [module.eks_sg.eks_control_plane_security_group_id]
   tags                      = local.tags
-  worker_roles              = [module.ec2_asg.iam_role]
-  worker_roles_count        = "1"
+  worker_roles              = [module.ec2_asg.iam_role, module.ec2_asg2.iam_role]
+  worker_roles_count        = 2
 }
-
 data "aws_ami" "eks" {
   most_recent = true
   owners      = ["602401143452"]
@@ -99,6 +98,50 @@ module "ec2_asg" {
   instance_role_managed_policy_arns      = module.eks.iam_all_node_policies
   instance_type                          = "t2.medium"
   name                                   = "Test_eks_worker_nodes_${random_string.r_string.result}"
+  scaling_max                            = 2
+  scaling_min                            = 1
+  security_groups                        = [module.eks_sg.eks_worker_security_group_id]
+  subnets                                = data.aws_subnet_ids.selected.ids
+
+  tags = merge(
+    local.tags,
+    {
+      "kubernetes.io/cluster/${module.eks.name}" = "owned"
+      "k8s.io/cluster-autoscaler/enabled"        = ""
+    },
+  )
+}
+
+data "aws_ami" "windows_eks" {
+  most_recent = true
+  owners      = ["801119661308"]
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  filter {
+    name   = "root-device-type"
+    values = ["ebs"]
+  }
+
+  filter {
+    name   = "name"
+    values = ["Windows_Server-2019-English-Full-EKS_Optimized*"]
+  }
+}
+
+module "ec2_asg2" {
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ec2_asg?ref=master"
+
+  ec2_os                                 = "windows2019"
+  image_id                               = data.aws_ami.windows_eks.image_id
+  initial_userdata_commands              = module.eks.setup_windows
+  instance_role_managed_policy_arn_count = 3
+  instance_role_managed_policy_arns      = module.eks.iam_all_node_policies
+  instance_type                          = "t2.medium"
+  name                                   = "Test_eks_win_worker_nodes_${random_string.r_string.result}"
   scaling_max                            = 2
   scaling_min                            = 1
   security_groups                        = [module.eks_sg.eks_worker_security_group_id]
