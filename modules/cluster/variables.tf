@@ -5,7 +5,13 @@ variable "alb_ingress_controller_enable" {
 }
 
 variable "bootstrap_arguments" {
-  description = "Any optional parameters for the EKS Bootstrapping script. This is ignored for all os's except amazon EKS"
+  description = "Any optional parameters for the EKS Bootstrapping script. This is ignored for all os's except Amazon EKS"
+  type        = string
+  default     = ""
+}
+
+variable "bootstrap_arguments_windows" {
+  description = "Any optional parameters for the EKS Bootstrapping script. This is ignored for all os's except Windows EKS"
   type        = string
   default     = ""
 }

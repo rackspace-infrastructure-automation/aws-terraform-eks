@@ -7,7 +7,7 @@
  *
  * ```
  * module "eks_config" {
- *   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/kubernetes_components/?ref=v0.12.0"
+ *   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/kubernetes_components/?ref=v0.12.2"
  *
  *   cluster_name    = module.eks_cluster.name
  *   kube_map_roles  = module.eks_cluster.kube_map_roles
