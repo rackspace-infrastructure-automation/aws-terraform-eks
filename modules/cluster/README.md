@@ -10,7 +10,7 @@ In order to get a working cluster: manual steps must be performed **after** the 
 
 ```
 module "eks_cluster" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/cluster/?ref=v0.0.5"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/cluster/?ref=v0.0.6"
 
   name               = "${local.eks_cluster_name}"
   security_groups    = ["${module.sg.eks_control_plane_security_group_id}"]
@@ -37,6 +37,7 @@ Full working references are available at [examples](examples)
 |------|-------------|------|---------|:-----:|
 | alb\_ingress\_controller\_enable | A boolean value that determines if IAM policies related to ALB ingress controller should be created. | `string` | `true` | no |
 | bootstrap\_arguments | Any optional parameters for the EKS Bootstrapping script. This is ignored for all os's except amazon EKS | `string` | `""` | no |
+| bootstrap\_arguments\_windows | Any optional parameters for the EKS Bootstrapping script. This is ignored for all os's except Windows EKS | `string` | `""` | no |
 | cluster\_autoscaler\_enable | A boolean value that determines if IAM policies related to cluster autoscaler should be created. | `string` | `true` | no |
 | enabled\_cluster\_log\_types | A list of the desired control plane logging to enable. All logs are enabled by default. | `list` | <pre>[<br>  "api",<br>  "audit",<br>  "authenticator",<br>  "controllerManager",<br>  "scheduler"<br>]</pre> | no |
 | environment | Application environment for which this network is being created. Preferred value are Development, Integration, PreProduction, Production, QA, Staging, or Test | `string` | `"Development"` | no |
@@ -67,4 +68,5 @@ Full working references are available at [examples](examples)
 | kubeconfig | Contents of the kubeconfig file used to connect to the cluster for management.  Value should be retrieved with CLI or SDK to ensure proper formatting |
 | name | Assigned name of the EKS Cluster |
 | setup | Default EKS bootstrapping script for EC2 |
+| setup\_windows | Default EKS bootstrapping script for Windows EC2 instances |
 

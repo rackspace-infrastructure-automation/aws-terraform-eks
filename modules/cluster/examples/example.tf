@@ -29,7 +29,7 @@ module "sg" {
 }
 
 module "eks" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/cluster?ref=v0.0.5"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/cluster?ref=v0.0.6"
 
   name               = "${local.eks_cluster_name}"
   security_groups    = ["${module.sg.eks_control_plane_security_group_id}"]
@@ -52,7 +52,7 @@ data "aws_ami" "eks" {
 }
 
 module "ec2_asg" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ec2_asg?ref=v0.0.24"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ec2_asg?ref=v0.0.25"
 
   ec2_os                    = "amazoneks"
   image_id                  = "${data.aws_ami.eks.image_id}"

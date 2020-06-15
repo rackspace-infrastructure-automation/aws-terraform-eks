@@ -11,7 +11,7 @@
  *
  * ```
  * module "eks_cluster" {
- *   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/cluster/?ref=v0.0.5"
+ *   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/cluster/?ref=v0.0.6"
  *
  *   name               = "${local.eks_cluster_name}"
  *   security_groups    = ["${module.sg.eks_control_plane_security_group_id}"]
