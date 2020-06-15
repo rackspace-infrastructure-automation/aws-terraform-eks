@@ -10,6 +10,12 @@ variable "bootstrap_arguments" {
   default     = ""
 }
 
+variable "bootstrap_arguments_windows" {
+  description = "Any optional parameters for the EKS Bootstrapping script. This is ignored for all os's except Windows EKS"
+  type        = "string"
+  default     = ""
+}
+
 variable "cluster_autoscaler_enable" {
   description = "A boolean value that determines if IAM policies related to cluster autoscaler should be created."
   type        = "string"

@@ -39,6 +39,19 @@ locals {
     Terraform       = "true"
   }
 
+  eks_tags = [
+    {
+      key                 = "kubernetes.io/cluster/${module.eks.name}"
+      value               = "owned"
+      propagate_at_launch = true
+    },
+    {
+      key                 = "k8s.io/cluster-autoscaler/enabled"
+      value               = ""
+      propagate_at_launch = true
+    },
+  ]
+
   eks_cluster_name = "${local.tags["Environment"]}-EKS"
 
   tags_length = "${length(keys(local.tags))}"
@@ -78,8 +91,8 @@ module "eks" {
   security_groups           = ["${module.eks_sg.eks_control_plane_security_group_id}"]
   subnets                   = "${data.aws_subnet_ids.selected.ids}"                        # Required
   tags                      = "${local.tags}"
-  worker_roles              = ["${module.ec2_asg.iam_role}"]
-  worker_roles_count        = 1
+  worker_roles              = ["${module.ec2_asg.iam_role}", "${module.ec2_asg2.iam_role}"]
+  worker_roles_count        = 2
 }
 
 data "aws_ami" "eks" {
@@ -100,20 +113,7 @@ data "aws_ami" "eks" {
 module "ec2_asg" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ec2_asg?ref=tf_v0.11"
 
-  additional_tags = [
-    local.tags,
-    {
-      key                 = "kubernetes.io/cluster/${module.eks.name}"
-      value               = "owned"
-      propagate_at_launch = true
-    },
-    {
-      key                 = "k8s.io/cluster-autoscaler/enabled"
-      value               = ""
-      propagate_at_launch = true
-    },
-  ]
-
+  additional_tags                        = "${concat(data.null_data_source.asg_tags.*.outputs, local.eks_tags)}"
   ec2_os                                 = "amazoneks"
   image_id                               = "${data.aws_ami.eks.image_id}"
   initial_userdata_commands              = "${module.eks.setup}"
@@ -121,6 +121,43 @@ module "ec2_asg" {
   instance_role_managed_policy_arns      = "${module.eks.iam_all_node_policies}"
   instance_role_managed_policy_arn_count = 3
   resource_name                          = "${local.tags["Environment"]}_eks_worker_nodes_${random_string.r_string.result}"
+  scaling_min                            = 1
+  scaling_max                            = 2
+  security_group_list                    = ["${module.eks_sg.eks_worker_security_group_id}"]
+  subnets                                = "${data.aws_subnet_ids.selected.ids}"
+}
+
+data "aws_ami" "windows_eks" {
+  most_recent = true
+  owners      = ["801119661308"]
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  filter {
+    name   = "root-device-type"
+    values = ["ebs"]
+  }
+
+  filter {
+    name   = "name"
+    values = ["Windows_Server-2019-English-Full-EKS_Optimized*"]
+  }
+}
+
+module "ec2_asg2" {
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ec2_asg?ref=tf_v0.11"
+
+  additional_tags                        = "${concat(data.null_data_source.asg_tags.*.outputs, local.eks_tags)}"
+  ec2_os                                 = "windows2019"
+  image_id                               = "${data.aws_ami.windows_eks.image_id}"
+  initial_userdata_commands              = "${module.eks.setup_windows}"
+  instance_type                          = "t2.medium"
+  instance_role_managed_policy_arns      = "${module.eks.iam_all_node_policies}"
+  instance_role_managed_policy_arn_count = 3
+  resource_name                          = "${local.tags["Environment"]}_eks_win_worker_nodes_${random_string.r_string.result}"
   scaling_min                            = 1
   scaling_max                            = 2
   security_group_list                    = ["${module.eks_sg.eks_worker_security_group_id}"]

@@ -55,7 +55,7 @@ module "sg" {
 }
 
 module "eks" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/cluster?ref=v0.0.5"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/cluster?ref=v0.0.6"
 
   name                      = "${local.cluster_name}"
   enabled_cluster_log_types = []                                                                 #  All are enabled by default. Test to ensure disabling doesn't break
@@ -146,7 +146,7 @@ module "worker2" {
 }
 
 module "kubernetes_components" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/kubernetes_components?ref=v0.0.5"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/kubernetes_components?ref=v0.0.6"
 
   cluster_name                  = "${module.eks.name}"
   kube_map_roles                = "${module.eks.kube_map_roles}"
