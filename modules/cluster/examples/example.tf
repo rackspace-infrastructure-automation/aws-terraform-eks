@@ -59,7 +59,7 @@ module "ec2_asg" {
   initial_userdata_commands = "${module.eks.setup}"
   instance_type             = "t2.medium"
   resource_name             = "my_eks_worker_nodes"
-  security_group_list       = ["${module.sg.eks_worker_security_group_id}"]
+  security_group_list       = ["${module.eks.cluster_security_group_id}"]
   subnets                   = ["${module.vpc.private_subnets}"]
 
   additional_tags = [

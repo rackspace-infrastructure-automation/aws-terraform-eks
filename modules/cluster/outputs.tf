@@ -9,6 +9,13 @@ output "certificate_authority_data" {
   depends_on  = ["null_resource.cluster_launch"]
 }
 
+output "cluster_security_group_id" {
+  description = "The cluster security group that was created by Amazon EKS for the cluster"
+  value       = "${aws_eks_cluster.cluster.vpc_config.0.cluster_security_group_id}"
+
+  depends_on = ["null_resource.cluster_launch"]
+}
+
 output "endpoint" {
   description = "Management endpoint of the EKS Cluster"
   value       = "${aws_eks_cluster.cluster.endpoint}"
