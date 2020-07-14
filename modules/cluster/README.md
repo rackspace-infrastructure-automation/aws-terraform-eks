@@ -11,7 +11,6 @@ module "eks_cluster" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/cluster/?ref=v0.12.2"
 
   name               = local.eks_cluster_name
-  security_groups    = [module.sg.eks_control_plane_security_group_id]
   subnets            = concat(module.vpc.private_subnets, module.vpc.public_subnets) #  Required
   tags               = "${local.tags}"
   worker_roles       = [module.eks_workers.iam_role]
@@ -47,7 +46,7 @@ There should be no changes required to move from previous versions of this modul
 | log\_group\_retention | Specifies the number of days you want to retain log events in the specified log group. Possible values are: 0 (Never Expire), 1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, and 3653. | `number` | `0` | no |
 | manage\_log\_group | Optionally manage the cluster log group via Terraform. Couple with `log_group_retention` to use a retention other than 'Never Expire'. | `bool` | `false` | no |
 | name | The desired name for the EKS cluster. | `string` | n/a | yes |
-| security\_groups | List of security groups to apply to the EKS Control Plane.  These groups should enable access to the EKS Worker nodes. | `list(string)` | n/a | yes |
+| security\_groups | Optional list of additional security groups to apply to the EKS Control Plane.  These groups should enable access to the EKS Worker nodes. | `list(string)` | `[]` | no |
 | subnets | List of public and private subnets used for the EKS control plane. | `list(string)` | n/a | yes |
 | tags | Optional tags to be applied on top of the base tags on all resources | `map(string)` | `{}` | no |
 | wait\_for\_cluster | A variable to control whether we pause deployment after creating the EKS cluster to allow time to fully launch. | `bool` | `true` | no |
@@ -60,6 +59,7 @@ There should be no changes required to move from previous versions of this modul
 |------|-------------|
 | aws\_auth\_cm | Contents of the aws-auth-cm.yaml used for cluster configuration.  Value should be retrieved with CLI or SDK to ensure proper formatting |
 | certificate\_authority\_data | Assigned CA data for the EKS Cluster |
+| cluster\_security\_group\_id | The cluster security group that was created by Amazon EKS for the cluster |
 | endpoint | Management endpoint of the EKS Cluster |
 | iam\_alb\_ingress | ARN of the EKS Cluster Node ALB Ingress Controller IAM policy |
 | iam\_all\_node\_policies | ARN of all EKS Cluster Node IAM polices |

@@ -65,8 +65,9 @@ variable "name" {
 }
 
 variable "security_groups" {
-  description = "List of security groups to apply to the EKS Control Plane.  These groups should enable access to the EKS Worker nodes."
+  description = "Optional list of additional security groups to apply to the EKS Control Plane.  These groups should enable access to the EKS Worker nodes."
   type        = list(string)
+  default     = []
 }
 
 variable "subnets" {

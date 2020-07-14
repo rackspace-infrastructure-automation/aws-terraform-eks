@@ -36,7 +36,6 @@ module "eks" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/cluster?ref=v0.12.2"
 
   name               = local.eks_cluster_name
-  security_groups    = [module.sg.eks_control_plane_security_group_id]
   subnets            = concat(module.vpc.private_subnets, module.vpc.public_subnets) #  Required
   worker_roles       = [module.ec2_asg.iam_role]
   worker_roles_count = 1
@@ -61,7 +60,7 @@ module "ec2_asg" {
   initial_userdata_commands = module.eks.setup
   instance_type             = "t2.medium"
   name                      = "my_eks_worker_nodes"
-  security_groups           = [module.sg.eks_worker_security_group_id]
+  security_groups           = [module.eks.cluster_security_group_id]
   subnets                   = [module.vpc.private_subnets]
 
   tags = {
