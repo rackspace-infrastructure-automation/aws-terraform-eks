@@ -28,6 +28,12 @@ variable "cluster_autoscaler_enable" {
   default     = true
 }
 
+variable "cluster_autoscaler_image" {
+  description = "Cluster Autoscaler Image"
+  type        = string
+  default     = "gcr.io/google-containers/cluster-autoscaler:v1.15.0"
+}
+
 variable "cluster_autoscaler_mem_limits" {
   description = "Mem Limits for the CA Pod"
   type        = string
