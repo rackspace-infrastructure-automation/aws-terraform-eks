@@ -35,6 +35,7 @@ There should be no changes required to move from previous versions of this modul
 | cluster\_autoscaler\_cpu\_limits | CPU Limits for the CA Pod | `string` | `"100m"` | no |
 | cluster\_autoscaler\_cpu\_requests | CPU Requests for the CA Pod | `string` | `"100m"` | no |
 | cluster\_autoscaler\_enable | A variable to control whether CA is enabled | `bool` | `true` | no |
+| cluster\_autoscaler\_image | Cluster Autoscaler Image | `string` | `"gcr.io/google-containers/cluster-autoscaler:v1.15.0"` | no |
 | cluster\_autoscaler\_mem\_limits | Mem Limits for the CA Pod | `string` | `"300Mi"` | no |
 | cluster\_autoscaler\_mem\_requests | Mem requests for the CA Pod | `string` | `"300Mi"` | no |
 | cluster\_autoscaler\_scale\_down\_delay | CA Scale down delay | `string` | `"5m"` | no |

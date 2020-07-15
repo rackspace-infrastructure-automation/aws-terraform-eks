@@ -257,7 +257,7 @@ resource "kubernetes_deployment" "cluster_autoscaler" {
 
         container {
           command           = ["./cluster-autoscaler", "--v=4", "--stderrthreshold=info", "--cloud-provider=aws", "--skip-nodes-with-local-storage=false", "--expander=least-waste", "--node-group-auto-discovery=asg:tag=${var.cluster_autoscaler_tag_key}", "--scale-down-delay-after-add=${var.cluster_autoscaler_scale_down_delay}"]
-          image             = "gcr.io/google-containers/cluster-autoscaler:v1.15.0"
+          image             = var.cluster_autoscaler_image
           image_pull_policy = "Always"
           name              = "cluster-autoscaler"
 
