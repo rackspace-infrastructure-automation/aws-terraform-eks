@@ -24,7 +24,7 @@ There should be no changes required to move from previous versions of this modul
 
 | Name | Version |
 |------|---------|
-| kubernetes | >= 1.1.0, < 1.10.0 |
+| kubernetes | >= 1.1.0 |
 
 ## Inputs
 

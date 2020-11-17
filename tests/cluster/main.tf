@@ -3,12 +3,12 @@ terraform {
 }
 
 provider "aws" {
-  version = "~> 2.7"
+  version = "~> 3.0"
   region  = "us-west-2"
 }
 
 provider "kubernetes" {
-  version = "= 1.9"
+  version = "~> 1.13.0"
 
   cluster_ca_certificate = base64decode(module.eks.certificate_authority_data)
   host                   = module.eks.endpoint
