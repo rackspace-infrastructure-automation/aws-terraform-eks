@@ -22,6 +22,12 @@ variable "cluster_autoscaler_enable" {
   default     = true
 }
 
+variable "create_elb_service_linked_role" {
+  description = "Whether to create the service linked role for the elasticloadbalancing service. Without this EKS cannot create ELBs."
+  type        = "string"
+  default     = false
+}
+
 variable "enabled_cluster_log_types" {
   description = "A list of the desired control plane logging to enable. All logs are enabled by default."
   type        = "list"

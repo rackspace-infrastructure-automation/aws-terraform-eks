@@ -22,6 +22,10 @@ module "eks_cluster" {
 
 Full working references are available at [examples](examples)
 
+## Requirements
+
+No requirements.
+
 ## Providers
 
 | Name | Version |
@@ -30,14 +34,34 @@ Full working references are available at [examples](examples)
 | null | n/a |
 | template | n/a |
 
+## Modules
+
+No Modules.
+
+## Resources
+
+| Name |
+|------|
+| [aws_cloudwatch_log_group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group) |
+| [aws_eks_cluster](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/eks_cluster) |
+| [aws_iam_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) |
+| [aws_iam_policy_document](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) |
+| [aws_iam_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) |
+| [aws_iam_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_role) |
+| [aws_iam_role_policy_attachment](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) |
+| [aws_iam_service_linked_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_service_linked_role) |
+| [null_resource](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) |
+| [template_file](https://registry.terraform.io/providers/hashicorp/template/latest/docs/data-sources/file) |
+
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:-----:|
+|------|-------------|------|---------|:--------:|
 | alb\_ingress\_controller\_enable | A boolean value that determines if IAM policies related to ALB ingress controller should be created. | `string` | `true` | no |
 | bootstrap\_arguments | Any optional parameters for the EKS Bootstrapping script. This is ignored for all os's except amazon EKS | `string` | `""` | no |
 | bootstrap\_arguments\_windows | Any optional parameters for the EKS Bootstrapping script. This is ignored for all os's except Windows EKS | `string` | `""` | no |
 | cluster\_autoscaler\_enable | A boolean value that determines if IAM policies related to cluster autoscaler should be created. | `string` | `true` | no |
+| create\_elb\_service\_linked\_role | Whether to create the service linked role for the elasticloadbalancing service. Without this EKS cannot create ELBs. | `string` | `false` | no |
 | enabled\_cluster\_log\_types | A list of the desired control plane logging to enable. All logs are enabled by default. | `list` | <pre>[<br>  "api",<br>  "audit",<br>  "authenticator",<br>  "controllerManager",<br>  "scheduler"<br>]</pre> | no |
 | environment | Application environment for which this network is being created. Preferred value are Development, Integration, PreProduction, Production, QA, Staging, or Test | `string` | `"Development"` | no |
 | kubernetes\_version | The desired Kubernetes version for your cluster. If you do not specify a value here, the latest version available in Amazon EKS is used. | `string` | `""` | no |
@@ -69,4 +93,3 @@ Full working references are available at [examples](examples)
 | name | Assigned name of the EKS Cluster |
 | setup | Default EKS bootstrapping script for EC2 |
 | setup\_windows | Default EKS bootstrapping script for Windows EC2 instances |
-

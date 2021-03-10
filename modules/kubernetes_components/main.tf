@@ -5,7 +5,7 @@
  *
  * ## Basic Usage
  *
- *```
+ * ```
  * module "eks_config" {
  *   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/kubernetes_components/?ref=v0.0.6"
  *
