@@ -59,6 +59,16 @@ data "aws_iam_policy_document" "assume_service" {
   }
 }
 
+#
+# Required so EKS can create ELBs. This is well described here:
+# https://github.com/terraform-aws-modules/terraform-aws-eks/issues/87
+#  https://medium.com/faun/aws-eks-the-role-is-not-authorized-to-perform-ec2-describeaccountattributes-error-1c6474781b84
+#
+resource "aws_iam_service_linked_role" "elasticloadbalancing" {
+  count            = "${var.create_elb_service_linked_role ? 1 : 0}"
+  aws_service_name = "elasticloadbalancing.amazonaws.com"
+}
+
 resource "aws_iam_role" "role" {
   name_prefix        = "${var.name}-ControlPlane-"
   path               = "/"
