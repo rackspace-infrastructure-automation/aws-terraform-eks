@@ -33,7 +33,7 @@ module "sg" {
 }
 
 module "eks" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/cluster?ref=v0.12.2"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/cluster?ref=v0.12.5"
 
   name               = local.eks_cluster_name
   subnets            = concat(module.vpc.private_subnets, module.vpc.public_subnets) #  Required

@@ -7,7 +7,7 @@
  *
  * ```
  * module "eks_config" {
- *   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/kubernetes_components/?ref=v0.12.2"
+ *   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/kubernetes_components/?ref=v0.12.5"
  *
  *   cluster_name    = module.eks_cluster.name
  *   kube_map_roles  = module.eks_cluster.kube_map_roles
@@ -27,7 +27,7 @@ terraform {
   required_version = ">= 0.12"
 
   required_providers {
-    kubernetes = ">= 1.1.0"
+    kubernetes = ">= 2.0"
   }
 }
 
@@ -262,12 +262,12 @@ resource "kubernetes_deployment" "cluster_autoscaler" {
           name              = "cluster-autoscaler"
 
           resources {
-            limits {
+            limits = {
               cpu    = var.cluster_autoscaler_cpu_limits
               memory = var.cluster_autoscaler_mem_limits
             }
 
-            requests {
+            requests = {
               cpu    = var.cluster_autoscaler_cpu_requests
               memory = var.cluster_autoscaler_mem_requests
             }

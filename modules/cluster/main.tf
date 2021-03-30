@@ -9,7 +9,7 @@
  *
  * ```
  * module "eks_cluster" {
- *   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/cluster/?ref=v0.12.2"
+ *   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/cluster/?ref=v0.12.5"
  *
  *   name               = local.eks_cluster_name
  *   subnets            = concat(module.vpc.private_subnets, module.vpc.public_subnets) #  Required
@@ -171,7 +171,7 @@ resource "null_resource" "cluster_launch" {
   # we should be able to remove this sleep command.
 
   provisioner "local-exec" {
-    command = "sleep 60"
+    command = "sleep 120"
   }
   triggers = {
     cluster_endpoint = aws_eks_cluster.cluster.endpoint
