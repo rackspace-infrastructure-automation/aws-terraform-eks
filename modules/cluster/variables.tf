@@ -4,6 +4,18 @@ variable "alb_ingress_controller_enable" {
   default     = true
 }
 
+variable "bastion_security_groups" {
+  description = "Security groups for the Amazon Linux 2 bastion"
+  type = list(string)
+  default = [""]
+}
+
+variable "bastion_subnet" {
+  description = "Public subnet to put the Amazon Linux 2 bastion in"
+  type = string
+  default = ""
+}
+
 variable "bootstrap_arguments" {
   description = "Any optional parameters for the EKS Bootstrapping script. This is ignored for all os's except Amazon EKS"
   type        = string
@@ -20,6 +32,12 @@ variable "cluster_autoscaler_enable" {
   description = "A boolean value that determines if IAM policies related to cluster autoscaler should be created."
   type        = bool
   default     = true
+}
+
+variable "create_bastion" {
+  description = "Create an Amazon 2 Linux bastion to access private cluster resources with kubectl"
+  type = bool
+  default = false
 }
 
 variable "enabled_cluster_log_types" {

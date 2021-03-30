@@ -47,19 +47,11 @@ locals {
   eks_cluster_name = "${local.tags["Environment"]}-EKS"
 }
 
-data "aws_vpc" "selected" {
-  default = true
-}
-
-data "aws_subnet_ids" "selected" {
-  vpc_id = data.aws_vpc.selected.id
-}
-
 module "eks_sg" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-security_group?ref=master"
 
   name   = "${local.eks_cluster_name}-SG-${random_string.r_string.result}"
-  vpc_id = data.aws_vpc.selected.id
+  vpc_id = module.vpc.vpc_id
 }
 
 module "eks" {
@@ -67,7 +59,7 @@ module "eks" {
 
   name                      = "${local.eks_cluster_name}-${random_string.r_string.result}"
   enabled_cluster_log_types = []
-  subnets                   = data.aws_subnet_ids.selected.ids
+  subnets                   = concat(module.vpc.private_subnets, module.vpc.public_subnets)
   security_groups           = [module.eks_sg.eks_control_plane_security_group_id]
   tags                      = local.tags
   worker_roles              = [module.ec2_asg.iam_role, module.ec2_asg2.iam_role]
@@ -101,7 +93,7 @@ module "ec2_asg" {
   scaling_max                            = 2
   scaling_min                            = 1
   security_groups                        = [module.eks_sg.eks_worker_security_group_id]
-  subnets                                = data.aws_subnet_ids.selected.ids
+  subnets                                = module.vpc.private_subnets
 
   tags = merge(
     local.tags,
@@ -145,7 +137,7 @@ module "ec2_asg2" {
   scaling_max                            = 2
   scaling_min                            = 1
   security_groups                        = [module.eks_sg.eks_worker_security_group_id]
-  subnets                                = data.aws_subnet_ids.selected.ids
+  subnets                                = module.vpc.private_subnets
 
   tags = merge(
     local.tags,

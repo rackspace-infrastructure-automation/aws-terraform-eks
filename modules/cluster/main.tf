@@ -111,6 +111,8 @@ resource "aws_eks_cluster" "cluster" {
   version                   = var.kubernetes_version
 
   vpc_config {
+    endpoint_private_access = true
+    endpoint_public_access = false
     security_group_ids = var.security_groups
     subnet_ids         = var.subnets
   }
