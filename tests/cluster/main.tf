@@ -8,11 +8,10 @@ provider "aws" {
 }
 
 provider "kubernetes" {
-  version = "~> 1.13.0"
+  version = "~> 2.0"
 
-  cluster_ca_certificate = base64decode(module.eks.certificate_authority_data)
-  host                   = module.eks.endpoint
-  load_config_file       = false
+  cluster_ca_certificate = base64decode(data.aws_eks_cluster.eks.certificate_authority.0.data)
+  host                   = data.aws_eks_cluster.eks.endpoint
   token                  = data.aws_eks_cluster_auth.eks.token
 }
 
@@ -22,6 +21,10 @@ provider "random" {
 
 provider "template" {
   version = "~> 2.0"
+}
+
+data "aws_eks_cluster" "eks" {
+  name = module.eks.name
 }
 
 data "aws_eks_cluster_auth" "eks" {

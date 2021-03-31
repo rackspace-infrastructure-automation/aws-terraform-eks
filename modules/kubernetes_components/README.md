@@ -6,7 +6,7 @@ This module creates the other required components for EKS to allow additional fe
 
 ```
 module "eks_config" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/kubernetes_components/?ref=v0.12.2"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/kubernetes_components/?ref=v0.12.5"
 
   cluster_name    = module.eks_cluster.name
   kube_map_roles  = module.eks_cluster.kube_map_roles
@@ -20,16 +20,39 @@ Full working references are available at [examples](examples)
 
 There should be no changes required to move from previous versions of this module to version 0.12.0 or higher.
 
+## Requirements
+
+| Name | Version |
+|------|---------|
+| terraform | >= 0.12 |
+| kubernetes | >= 2.0 |
+
 ## Providers
 
 | Name | Version |
 |------|---------|
-| kubernetes | >= 1.1.0 |
+| kubernetes | >= 2.0 |
+
+## Modules
+
+No Modules.
+
+## Resources
+
+| Name |
+|------|
+| [kubernetes_cluster_role](https://registry.terraform.io/providers/hashicorp/kubernetes/2.0/docs/resources/cluster_role) |
+| [kubernetes_cluster_role_binding](https://registry.terraform.io/providers/hashicorp/kubernetes/2.0/docs/resources/cluster_role_binding) |
+| [kubernetes_config_map](https://registry.terraform.io/providers/hashicorp/kubernetes/2.0/docs/resources/config_map) |
+| [kubernetes_deployment](https://registry.terraform.io/providers/hashicorp/kubernetes/2.0/docs/resources/deployment) |
+| [kubernetes_role](https://registry.terraform.io/providers/hashicorp/kubernetes/2.0/docs/resources/role) |
+| [kubernetes_role_binding](https://registry.terraform.io/providers/hashicorp/kubernetes/2.0/docs/resources/role_binding) |
+| [kubernetes_service_account](https://registry.terraform.io/providers/hashicorp/kubernetes/2.0/docs/resources/service_account) |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:-----:|
+|------|-------------|------|---------|:--------:|
 | alb\_ingress\_controller\_enable | A variable to control whether or not the ALB Ingress resources are enabled | `bool` | `true` | no |
 | alb\_max\_api\_retries | Maximum number of times to retry the aws calls | `number` | `10` | no |
 | cluster\_autoscaler\_cpu\_limits | CPU Limits for the CA Pod | `string` | `"100m"` | no |
@@ -49,4 +72,3 @@ There should be no changes required to move from previous versions of this modul
 ## Outputs
 
 No output.
-

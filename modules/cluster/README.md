@@ -8,7 +8,7 @@ In order to get a working cluster: manual steps must be performed **after** the 
 
 ```
 module "eks_cluster" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/cluster/?ref=v0.12.2"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-eks//modules/cluster/?ref=v0.12.5"
 
   name               = local.eks_cluster_name
   subnets            = concat(module.vpc.private_subnets, module.vpc.public_subnets) #  Required
@@ -24,6 +24,13 @@ Full working references are available at [examples](examples)
 
 There should be no changes required to move from previous versions of this module to version 0.12.0 or higher.
 
+## Requirements
+
+| Name | Version |
+|------|---------|
+| terraform | >= 0.12 |
+| aws | >= 2.7.0 |
+
 ## Providers
 
 | Name | Version |
@@ -32,10 +39,28 @@ There should be no changes required to move from previous versions of this modul
 | null | n/a |
 | template | n/a |
 
+## Modules
+
+No Modules.
+
+## Resources
+
+| Name |
+|------|
+| [aws_cloudwatch_log_group](https://registry.terraform.io/providers/hashicorp/aws/2.7.0/docs/resources/cloudwatch_log_group) |
+| [aws_eks_cluster](https://registry.terraform.io/providers/hashicorp/aws/2.7.0/docs/resources/eks_cluster) |
+| [aws_iam_policy](https://registry.terraform.io/providers/hashicorp/aws/2.7.0/docs/resources/iam_policy) |
+| [aws_iam_policy_document](https://registry.terraform.io/providers/hashicorp/aws/2.7.0/docs/data-sources/iam_policy_document) |
+| [aws_iam_role](https://registry.terraform.io/providers/hashicorp/aws/2.7.0/docs/resources/iam_role) |
+| [aws_iam_role](https://registry.terraform.io/providers/hashicorp/aws/2.7.0/docs/data-sources/iam_role) |
+| [aws_iam_role_policy_attachment](https://registry.terraform.io/providers/hashicorp/aws/2.7.0/docs/resources/iam_role_policy_attachment) |
+| [null_resource](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) |
+| [template_file](https://registry.terraform.io/providers/hashicorp/template/latest/docs/data-sources/file) |
+
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:-----:|
+|------|-------------|------|---------|:--------:|
 | alb\_ingress\_controller\_enable | A boolean value that determines if IAM policies related to ALB ingress controller should be created. | `bool` | `true` | no |
 | bootstrap\_arguments | Any optional parameters for the EKS Bootstrapping script. This is ignored for all os's except Amazon EKS | `string` | `""` | no |
 | bootstrap\_arguments\_windows | Any optional parameters for the EKS Bootstrapping script. This is ignored for all os's except Windows EKS | `string` | `""` | no |
@@ -71,4 +96,3 @@ There should be no changes required to move from previous versions of this modul
 | name | Assigned name of the EKS Cluster |
 | setup | Default EKS bootstrapping script for Linux EC2 instances |
 | setup\_windows | Default EKS bootstrapping script for Windows EC2 instances |
-
